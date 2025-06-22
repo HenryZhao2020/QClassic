@@ -9,5 +9,4 @@ class MainView : public QFrame {
 
 public:
     MainView(MainWindow *win);
-    ~MainView();
 };

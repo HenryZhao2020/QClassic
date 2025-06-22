@@ -6,48 +6,48 @@
 static constexpr int TypeRole{Qt::UserRole + 1};
 
 SideBar::SideBar(MainWindow *win) : QTreeView{win} {
-    header()->hide();
-
     model = new QStandardItemModel{this};
     setModel(model);
 
-    composerRoot = new QStandardItem{tr("Composer")};
-    composerRoot->setFlags(Qt::NoItemFlags);
-    addItem("Ludwig Van Beethoven", ComposerItem);
-    addItem("JS Bach", ComposerItem);
-    addItem("Mozart", ComposerItem);
-    model->appendRow(composerRoot);
+    composerRoot = addRoot(tr("Composer"));
+    addItem("Ludwig Van Beethoven", Composer);
+    addItem("JS Bach", Composer);
+    addItem("Mozart", Composer);
 
-    genreRoot = new QStandardItem{tr("Genre")};
-    genreRoot->setFlags(Qt::NoItemFlags);
-    addItem("String Quartet", GenreItem);
-    addItem("Symphony", GenreItem);
-    addItem("Sonata", GenreItem);
-    model->appendRow(genreRoot);
+    genreRoot = addRoot(tr("Genre"));
+    addItem("String Quartet", Genre);
+    addItem("Symphony", Genre);
+    addItem("Sonata", Genre);
 
-    playlistRoot = new QStandardItem{tr("Playlist")};
-    playlistRoot->setFlags(Qt::NoItemFlags);
-    addItem("Bach's Lunch", PlaylistItem);
-    model->appendRow(playlistRoot);
+    playlistRoot = addRoot(tr("Playlist"));
+    addItem("Bach's Lunch", Playlist);
 
     connect(selectionModel(), &QItemSelectionModel::currentChanged,
             this, &SideBar::onItemSelected);
 
+    header()->hide();
     expandAll();
 }
 
-QStandardItem *SideBar::addItem(const QString &text, Category type) {
-    auto item = new QStandardItem{text};
-    item->setData(type, TypeRole);
+QStandardItem *SideBar::addRoot(const QString &text) {
+    auto root = new QStandardItem{text};
+    root->setFlags(Qt::NoItemFlags);
+    model->appendRow(root);
+    return root;
+}
 
-    switch (type) {
-    case ComposerItem:
+QStandardItem *SideBar::addItem(const QString &text, Category cat) {
+    auto item = new QStandardItem{text};
+    item->setData(cat, TypeRole);
+
+    switch (cat) {
+    case Composer:
         composerRoot->appendRow(item);
         break;
-    case GenreItem:
+    case Genre:
         genreRoot->appendRow(item);
         break;
-    case PlaylistItem:
+    case Playlist:
         playlistRoot->appendRow(item);
         break;
     }
@@ -63,15 +63,15 @@ void SideBar::onItemSelected(const QModelIndex &current, const QModelIndex &) {
     QString text = item->text();
 
     switch (type) {
-    case ComposerItem:
+    case Composer:
         qDebug() << "Composer selected:" << text;
         break;
 
-    case GenreItem:
+    case Genre:
         qDebug() << "Genre selected:" << text;
         break;
 
-    case PlaylistItem:
+    case Playlist:
         qDebug() << "Playlist selected:" << text;
         break;
 

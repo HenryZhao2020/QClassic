@@ -2,5 +2,3 @@
 #include "MainWindow.h"
 
 MainView::MainView(MainWindow *win) : QFrame{win} {}
-
-MainView::~MainView() {}

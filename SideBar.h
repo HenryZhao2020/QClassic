@@ -13,13 +13,15 @@ public:
 
 private:
     enum Category {
-        ComposerItem = 0,
-        GenreItem,
-        PlaylistItem,
+        Composer = 0,
+        Genre,
+        Playlist,
     };
 
-    QStandardItem *addItem(const QString &text, Category type);
+    QStandardItem *addRoot(const QString &text);
+    QStandardItem *addItem(const QString &text, Category cat);
     void onItemSelected(const QModelIndex &current, const QModelIndex &);
+    void showComposer();
 
     QStandardItemModel *model;
     QStandardItem *composerRoot;
