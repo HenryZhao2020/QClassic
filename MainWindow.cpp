@@ -23,5 +23,3 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
     mainLayout->addWidget(mainView, 1);
 }
-
-MainWindow::~MainWindow() {}

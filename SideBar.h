@@ -4,25 +4,26 @@
 #include <QStandardItem>
 
 class MainWindow;
+class CategoryRoot;
 
 class SideBar : public QTreeView {
     Q_OBJECT
 
 public:
     SideBar(MainWindow *win);
+    QStandardItemModel *getModel() const { return model; };
 
 private:
-    enum Category {
-        ComposerItem = 0,
-        GenreItem,
-        PlaylistItem,
-    };
-
-    QStandardItem *addItem(const QString &text, Category type);
-    void onItemSelected(const QModelIndex &current, const QModelIndex &);
-
     QStandardItemModel *model;
-    QStandardItem *composerRoot;
-    QStandardItem *genreRoot;
-    QStandardItem *playlistRoot;
+    CategoryRoot *composerRoot;
+};
+
+class CategoryRoot : public QStandardItem {
+public:
+    CategoryRoot(const QString &text, SideBar *sideBar);
+
+    virtual void addItem(const QString &text);
+
+protected:
+    virtual void onItemSelected(const QModelIndex &current, const QModelIndex &) = 0;
 };

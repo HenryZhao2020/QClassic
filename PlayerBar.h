@@ -9,5 +9,4 @@ class PlayerBar : public QFrame {
 
 public:
     PlayerBar(MainWindow *win);
-    ~PlayerBar();
 };

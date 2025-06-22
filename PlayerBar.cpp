@@ -10,5 +10,3 @@ PlayerBar::PlayerBar(MainWindow *win) : QFrame{win} {
     auto playButton = new QPushButton{"Play", this};
     barLayout->addWidget(playButton);
 }
-
-PlayerBar::~PlayerBar() {}
