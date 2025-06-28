@@ -13,9 +13,13 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
 
+    void setMainContent(MainView *view);
+
+    SideBar *getSideBar() const;
+
 private:
-    SideBar *sideBar;
-    QVBoxLayout *mainLayout;
-    PlayerBar *playerBar;
-    MainView *mainView;
+    SideBar *sideBar{nullptr};
+    QVBoxLayout *mainLayout{nullptr};
+    PlayerBar *playerBar{nullptr};
+    MainView *mainView{nullptr};
 };

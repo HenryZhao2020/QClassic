@@ -1,7 +1,0 @@
-PlayerBar QPushButton {
-    border: 0;
-}
-
-MainView {
-    background: palette(base);
-}

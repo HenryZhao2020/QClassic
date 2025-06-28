@@ -26,6 +26,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         PlayerBar.h PlayerBar.cpp
         QClassic.qrc
         MainView.h MainView.cpp
+        Library.h Library.cpp
+        ImportDialog.h ImportDialog.cpp
 
     )
 # Define target properties for Android with Qt 6 as:

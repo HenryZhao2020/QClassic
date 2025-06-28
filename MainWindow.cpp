@@ -7,7 +7,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), sideBar{new SideBar{this}},
-      playerBar{new PlayerBar{this}}, mainView{new MainView{this}} {
+      playerBar{new PlayerBar{this}} {
     resize(800, 600);
 
     auto splitter = new QSplitter{this};
@@ -21,5 +21,20 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
-    mainLayout->addWidget(mainView, 1);
+}
+
+void MainWindow::setMainContent(MainView *view) {
+    if (mainView) {
+        mainLayout->removeWidget(mainView);
+        mainView->deleteLater();
+    }
+
+    if (view) {
+        mainLayout->addWidget(view, 1);
+    }
+    mainView = view;
+}
+
+SideBar *MainWindow::getSideBar() const {
+    return sideBar;
 }
