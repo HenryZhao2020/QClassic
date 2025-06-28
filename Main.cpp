@@ -1,19 +1,23 @@
 #include "MainWindow.h"
 
 #include <QApplication>
-#include <QFile>
+#include <QDir>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    app.setStyle("Fusion");
 
-    QFile style{":/conf/Styles.qss"};
-    style.open(QFile::ReadOnly | QFile::Text);
-    app.setStyleSheet(style.readAll());
-    style.close();
+    QDir musicFolder{QDir::home()};
+    if (musicFolder.cd("Music")) {
+        QDir::setCurrent(musicFolder.absolutePath());
+    }
+
+    QFile styleSheet{":/conf/Styles.qss"};
+    if (styleSheet.open(QFile::ReadOnly)) {
+        app.setStyleSheet(styleSheet.readAll());
+    }
+    styleSheet.close();
 
     MainWindow win;
     win.show();
-
     return app.exec();
 }
