@@ -1,12 +1,13 @@
 #pragma once
 
-#include "TreeView.h"
+#include "PlaylistView.h"
 
 class MainWindow;
+class Composer;
 
-class ComposerView : public TreeView {
+class ComposerView : public PlaylistView {
     Q_OBJECT
 
 public:
-    ComposerView(MainWindow *win);
+    ComposerView(MainWindow *win, Composer *composer);
 };

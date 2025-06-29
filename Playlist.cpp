@@ -1,25 +1,23 @@
 #include "Playlist.h"
 #include "Composition.h"
 
-Playlist::Playlist(const QString &title, Library *lib)
-    : title{title}, lib{lib} {}
+Playlist::Playlist(const QString &name, Library *lib)
+    : LibraryItem{name, lib} {}
 
 Playlist::~Playlist() {
-    if (!lib) {
+    if (!getLibrary()) {
         for (auto c : std::as_const(compositions)) delete c;
     }
 }
 
-void Playlist::setTitle(const QString &title) {
-    this->title = title;
-}
-
-QString Playlist::getTitle() const {
-    return title;
-}
-
 void Playlist::addComposition(Composition *composition) {
+    Q_ASSERT(composition);
     compositions.append(composition);
+}
+
+bool Playlist::removeComposition(Composition *composition) {
+    Q_ASSERT(composition);
+    return compositions.removeOne(composition);
 }
 
 const QList<Composition *> &Playlist::getCompositions() const {

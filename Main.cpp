@@ -2,14 +2,11 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QStandardPaths>
 
 int main(int argc, char *argv[]) {
     QApplication app{argc, argv};
-
-    QDir musicFolder{QDir::home()};
-    if (musicFolder.cd("Music")) {
-        QDir::setCurrent(musicFolder.absolutePath());
-    }
+    QDir::setCurrent(QStandardPaths::writableLocation(QStandardPaths::MusicLocation));
 
     QFile styleSheet{":/conf/Styles.qss"};
     if (styleSheet.open(QFile::ReadOnly)) {

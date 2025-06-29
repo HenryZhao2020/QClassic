@@ -27,7 +27,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Library.h Library.cpp
         PlayerBar.h PlayerBar.cpp
         SideBar.h SideBar.cpp
-        CompositionView.h CompositionView.cpp
+
         MenuBar.h MenuBar.cpp
         QClassic.qrc
         Playlist.h Playlist.cpp
@@ -36,6 +36,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ComposerView.h ComposerView.cpp
         Styles.qss
         AppData.h AppData.cpp
+        LibraryItem.h LibraryItem.cpp
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET QClassic APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

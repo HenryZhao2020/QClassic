@@ -9,13 +9,16 @@ class Library {
     QList<Composition *> compositions;
     QList<Composer *> composers;
 
+    bool addComposer(Composer *composer);
+    bool removeComposer(Composer *composer);
+
 public:
     Library();
     ~Library();
 
-    void addComposition(Composition *composition);
-    void addComposer(Composer *composer);
-
+    bool addComposition(Composition *composition);
+    bool removeComposition(Composition *composition);
     const QList<Composition *> &getCompositions() const;
+
     const QList<Composer *> &getComposers() const;
 };

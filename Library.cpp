@@ -9,16 +9,36 @@ Library::~Library() {
     for (auto c : std::as_const(composers)) delete c;
 }
 
-void Library::addComposition(Composition *composition) {
-    compositions.append(composition);
+bool Library::addComposition(Composition *composition) {
+    Q_ASSERT(composition);
+    if (!compositions.contains(composition)) {
+        compositions.append(composition);
+        return true;
+    }
+    return false;
 }
 
-void Library::addComposer(Composer *composer) {
-    composers.append(composer);
+bool Library::removeComposition(Composition *composition) {
+    Q_ASSERT(composition);
+    return compositions.removeOne(composition);
 }
 
 const QList<Composition *> &Library::getCompositions() const {
     return compositions;
+}
+
+bool Library::addComposer(Composer *composer) {
+    Q_ASSERT(composer);
+    if (!composers.contains(composer)) {
+        composers.append(composer);
+        return true;
+    }
+    return false;
+}
+
+bool Library::removeComposer(Composer *composer) {
+    Q_ASSERT(composer);
+    return composers.removeOne(composer);
 }
 
 const QList<Composer *> &Library::getComposers() const {

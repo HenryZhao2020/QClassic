@@ -1,29 +1,26 @@
 #pragma once
 
+#include "LibraryItem.h"
+
 #include <QUrl>
 #include <QString>
-#include <QMediaPlayer>
-#include <QAudioOutput>
 
 class Composer;
+class QMediaPlayer;
+class QAudioOutput;
 
-class Composition {
+class Composition : public LibraryItem {
     QUrl source;
-    QString title;
     Composer *composer;
-
     QMediaPlayer *player;
     QAudioOutput *audioOutput;
 
 public:
     static QString millisecToString(int ms);
 
-    Composition(const QUrl &source, const QString &title = "",
+    Composition(const QUrl &source, const QString &name = "",
                 Composer *composer = nullptr);
     ~Composition();
-
-    void setTitle(const QString &title);
-    QString getTitle() const;
 
     void setComposer(Composer *composer);
     Composer *getComposer() const;

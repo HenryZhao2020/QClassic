@@ -1,12 +1,7 @@
 #include "SideBar.h"
 #include "MainWindow.h"
 
-#include <QHeaderView>
-
 SideBar::SideBar(MainWindow *win) : TreeView{win} {
-    header()->setVisible(false);
-    header()->setSectionResizeMode(QHeaderView::Stretch);
-
     addRow(tr("Opened Files"));
     addRow(tr("Library"));
 

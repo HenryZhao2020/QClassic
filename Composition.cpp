@@ -1,16 +1,17 @@
 #include "Composition.h"
-#include "Composer.h"
 
+#include <QMediaPlayer>
+#include <QAudioOutput>
 #include <QTime>
 
 QString Composition::millisecToString(int ms) {
     return QTime::fromMSecsSinceStartOfDay(ms).toString();
 }
 
-Composition::Composition(const QUrl &source, const QString &title,
+Composition::Composition(const QUrl &source, const QString &name,
                          Composer *composer)
-    : source{source}, title{title.isEmpty() ? source.fileName() : title},
-      composer{composer}, player{new QMediaPlayer},
+    : LibraryItem{name.isEmpty() ? source.fileName() : name},
+      source{source}, composer{composer}, player{new QMediaPlayer},
       audioOutput{new QAudioOutput} {
 
     player->setSource(source);
@@ -20,14 +21,6 @@ Composition::Composition(const QUrl &source, const QString &title,
 Composition::~Composition() {
     delete audioOutput;
     delete player;
-}
-
-void Composition::setTitle(const QString &title) {
-    this->title = title;
-}
-
-QString Composition::getTitle() const {
-    return title;
 }
 
 void Composition::setComposer(Composer *composer) {

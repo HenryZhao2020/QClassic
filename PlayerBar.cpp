@@ -1,14 +1,14 @@
 #include "PlayerBar.h"
 #include "MainWindow.h"
 #include "MenuBar.h"
-#include "TreeView.h"
+#include "PlaylistView.h"
 #include "Composition.h"
-#include "AppData.h"
 
 #include <QHBoxLayout>
-#include <QTime>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
-static const int MAX_VOLUME{100};
+static constexpr int MAX_VOLUME{100};
 
 PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
     playButton{new QPushButton{"Play", this}},
@@ -46,9 +46,9 @@ PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
 
     connect(playButton, &QPushButton::clicked, this, &PlayerBar::playOrPause);
     connect(prevButton, &QPushButton::clicked, this,
-            [win] { win->getTreeView()->selectPrev(); });
+            [win] { win->getPlaylistView()->selectPrev(); });
     connect(nextButton, &QPushButton::clicked, this,
-            [win] { win->getTreeView()->selectNext(); });
+            [win] { win->getPlaylistView()->selectNext(); });
 
     setEnabled(false);
 }
@@ -67,28 +67,12 @@ void PlayerBar::setCurrentComposition(Composition *composition) {
     currComposition = composition;
 
     setEnabled(composition);
-    win->setWindowTitle(composition ? composition->getTitle() : "");
+    win->setWindowTitle(composition ? composition->getName() : "");
 
-    timeSlider->setValue(0);
-    timeLabel->setText(Composition::millisecToString(0));
-    if (!composition) return;
-
-    timeSlider->setMaximum(composition->getDurationMs());
-    composition->getMediaPlayer()->audioOutput()
-        ->setVolume(1.0 * volume / MAX_VOLUME);
-
+    initTimeSlider(composition);
     auto player = currComposition->getMediaPlayer();
-    connect(player, &QMediaPlayer::positionChanged, this, [this] (int ms) {
-        if (timeSlider->isSliderDown()) return;
-
-        if (ms == currComposition->getDurationMs()) {
-            win->getTreeView()->selectNext();
-            return;
-        }
-
-        timeSlider->setValue(ms);
-        timeLabel->setText(Composition::millisecToString(ms));
-    });
+    connect(player, &QMediaPlayer::positionChanged, this,
+            &PlayerBar::updateTimeSlider);
 
     play();
 }
@@ -120,4 +104,26 @@ void PlayerBar::pause() {
     playButton->setText("Play");
     win->getMenuBar()->playAction->setText(tr("Play"));
     playing = false;
+}
+
+void PlayerBar::initTimeSlider(Composition *composition) {
+    timeSlider->setValue(0);
+    timeLabel->setText(Composition::millisecToString(0));
+
+    if (composition) {
+        timeSlider->setMaximum(composition->getDurationMs());
+        composition->getMediaPlayer()->audioOutput()
+            ->setVolume(1.0 * volume / MAX_VOLUME);
+    }
+}
+
+void PlayerBar::updateTimeSlider(int ms) {
+    if (timeSlider->isSliderDown()) return;
+
+    if (ms == currComposition->getDurationMs()) {
+        win->getPlaylistView()->selectNext();
+    } else {
+        timeSlider->setValue(ms);
+        timeLabel->setText(Composition::millisecToString(ms));
+    }
 }

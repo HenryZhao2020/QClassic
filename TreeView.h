@@ -2,9 +2,9 @@
 
 #include <QTreeView>
 #include <QStandardItem>
-#include <QStandardItemModel>
-#include <QList>
+#include <QStringList>
 
+class QStandardItemModel;
 class MainWindow;
 
 class TreeView : public QTreeView {
@@ -15,18 +15,13 @@ class TreeView : public QTreeView {
 
 protected:
     QStandardItemModel *getModel() const;
-    virtual void onDoubleClick(const QModelIndex &index);
 
 public:
-    TreeView(MainWindow *win);
+    TreeView(MainWindow *win, const QStringList &headers = {});
 
-    void setHeaders(const QStringList &headers);
     QStandardItem *addSection(const QString &text);
     QStandardItem *addRow(const QString &text,
                           QStandardItem *section = nullptr);
-    QList<QStandardItem *> addRow(const QStringList &texts,
+    QList<QStandardItem *> addRow(const QStringList &list,
                                   QStandardItem *section = nullptr);
-
-    virtual void selectPrev();
-    virtual void selectNext();
 };

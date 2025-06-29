@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QMenuBar>
-#include <QAction>
 
 class MainWindow;
 class PlayerBar;

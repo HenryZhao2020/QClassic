@@ -1,3 +1,3 @@
-QTreeView:item {
-    height: 30;
+TreeView:item {
+    height: 30px;
 }

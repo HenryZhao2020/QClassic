@@ -1,7 +1,7 @@
 #include "MenuBar.h"
 #include "MainWindow.h"
 #include "PlayerBar.h"
-#include "TreeView.h"
+#include "PlaylistView.h"
 #include "AppData.h"
 
 MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {
@@ -47,13 +47,13 @@ MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {
     prevAction = new QAction{tr("Previous"), this};
     prevAction->setShortcut(Qt::Key_MediaPrevious);
     connect(prevAction, &QAction::triggered, this,
-            [win] { win->getTreeView()->selectPrev(); });
+            [win] { win->getPlaylistView()->selectPrev(); });
     ctrlMenu->addAction(prevAction);
 
     nextAction = new QAction{tr("Next"), this};
     nextAction->setShortcut(Qt::Key_MediaNext);
     connect(nextAction, &QAction::triggered, this,
-            [win] { win->getTreeView()->selectNext(); });
+            [win] { win->getPlaylistView()->selectNext(); });
     ctrlMenu->addAction(nextAction);
 
     repeatOffAction = new QAction{tr("Off"), this};

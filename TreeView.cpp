@@ -1,61 +1,47 @@
 #include "TreeView.h"
 #include "MainWindow.h"
+
+#include <QStandardItemModel>
 #include <QHeaderView>
 
-TreeView::TreeView(MainWindow *win)
-    : QTreeView{win}, model{new QStandardItemModel{this}}, columnCount{1} {
+static constexpr int DEFAULT_COLUMN_COUNT{1};
 
+TreeView::TreeView(MainWindow *win, const QStringList &headers)
+    : QTreeView{win}, model{new QStandardItemModel{this}},
+      columnCount{headers.isEmpty() ? DEFAULT_COLUMN_COUNT
+                  : static_cast<int>(headers.size())} {
+
+    model->setHorizontalHeaderLabels(headers);
     setModel(model);
-    connect(this, &TreeView::doubleClicked, this, &TreeView::onDoubleClick);
-    header()->setStretchLastSection(false);
+
+    for (int i = 0; i < columnCount - 1; ++i) {
+        header()->setSectionResizeMode(i, QHeaderView::Stretch);
+    }
+    header()->setStretchLastSection(columnCount == DEFAULT_COLUMN_COUNT);
+    header()->setVisible(columnCount != DEFAULT_COLUMN_COUNT);
 }
 
 QStandardItemModel *TreeView::getModel() const {
     return model;
 }
 
-void TreeView::onDoubleClick(const QModelIndex &index) {}
-
-void TreeView::setHeaders(const QStringList &headers) {
-    model->setHorizontalHeaderLabels(headers);
-    columnCount = headers.size();
-
-    for (int i = 0; i < columnCount - 1; ++i) {
-        header()->setSectionResizeMode(i, QHeaderView::Stretch);
-    }
-}
-
 QStandardItem *TreeView::addSection(const QString &text) {
     auto section = new QStandardItem{text};
     section->setFlags(Qt::NoItemFlags);
     model->appendRow(section);
-    resizeColumnToContents(0);
-
-    for (int i = 1; i < columnCount; ++i) {
-        auto filler = new QStandardItem;
-        filler->setFlags(Qt::NoItemFlags);
-        model->appendRow(filler);
-    }
-
+    resizeColumnToContents(0);  // Necessary for setting row height
     return section;
 }
 
 QStandardItem *TreeView::addRow(const QString &text, QStandardItem *section) {
-    auto item = new QStandardItem{text};
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-
-    if (section) {
-        section->appendRow(item);
-    } else {
-        model->appendRow(item);
-    }
-
-    return item;
+    auto row = addRow(QStringList{text}, section);
+    return row[0];
 }
 
-QList<QStandardItem *> TreeView::addRow(const QStringList &texts, QStandardItem *section) {
+QList<QStandardItem *> TreeView::addRow(const QStringList &list,
+                                        QStandardItem *section) {
     QList<QStandardItem *> items;
-    for (const auto &text : texts) {
+    for (const auto &text : list) {
         auto item = new QStandardItem{text};
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         items.append(item);
@@ -63,12 +49,9 @@ QList<QStandardItem *> TreeView::addRow(const QStringList &texts, QStandardItem 
 
     if (section) {
         section->appendRow(items);
+        expandAll();
     } else {
         model->appendRow(items);
     }
     return items;
 }
-
-void TreeView::selectPrev() {}
-
-void TreeView::selectNext() {}

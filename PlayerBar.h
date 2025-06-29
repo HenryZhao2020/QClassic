@@ -4,11 +4,9 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QLabel>
-#include <QTimer>
 
 class MainWindow;
 class Composition;
-enum class Repeat;
 
 class PlayerBar : public QFrame {
     Q_OBJECT
@@ -27,7 +25,9 @@ class PlayerBar : public QFrame {
 
     Composition *currComposition;
     bool playing;
-    Repeat repeat;
+
+    void initTimeSlider(Composition *composition);
+    void updateTimeSlider(int ms);
 
 public:
     PlayerBar(MainWindow *win);
