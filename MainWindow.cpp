@@ -1,12 +1,12 @@
 #include "MainWindow.h"
 #include "Composition.h"
 #include "Library.h"
+#include "Playlist.h"
 #include "MenuBar.h"
 #include "SideBar.h"
 #include "PlayerBar.h"
 #include "TreeView.h"
 #include "PlaylistView.h"
-#include "Playlist.h"
 
 #include <QSplitter>
 #include <QShortcut>
@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     lib{new Library}, tempPlaylist{new Playlist},
     menuBar{new MenuBar{this}}, sideBar{new SideBar{this}},
     playerBar{new PlayerBar{this}},
-    mainView{new PlaylistView{this, tempPlaylist}} {
+    treeView{new PlaylistView{this, tempPlaylist}} {
 
     auto splitter = new QSplitter{this};
     auto container = new QWidget{this};
@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
-    mainLayout->addWidget(mainView, 1);
+    mainLayout->addWidget(treeView, 1);
 
     resize(550, 650);
     setSideBarVisible(false);
@@ -43,6 +43,10 @@ MainWindow::~MainWindow() {
     delete tempPlaylist;
 }
 
+MenuBar *MainWindow::getMenuBar() const {
+    return menuBar;
+}
+
 SideBar *MainWindow::getSideBar() const {
     return sideBar;
 }
@@ -51,18 +55,20 @@ PlayerBar *MainWindow::getPlayerBar() const {
     return playerBar;
 }
 
-TreeView *MainWindow::getMainView() const {
-    return mainView;
+TreeView *MainWindow::getTreeView() const {
+    return treeView;
 }
 
-void MainWindow::openFile() {
-    QUrl url = QFileDialog::getOpenFileUrl(this);
-    if (url.isEmpty()) return;
+void MainWindow::openFiles() {
+    const QList<QUrl> urls = QFileDialog::getOpenFileUrls(this);
+    if (urls.isEmpty()) return;
 
-    auto plistView = dynamic_cast<PlaylistView *>(mainView);
-    auto composition = new Composition{url.path()};
-    plistView->addComposition(composition);
-    playerBar->setCurrentComposition(composition);
+    auto plistView = dynamic_cast<PlaylistView *>(treeView);
+    Composition *composition = nullptr;
+    for (const auto &url : urls) {
+        composition = new Composition{url.path()};
+        plistView->addComposition(composition);
+    }
 }
 
 void MainWindow::setSideBarVisible(bool visible) {

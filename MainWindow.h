@@ -21,16 +21,17 @@ class MainWindow : public QMainWindow {
     MenuBar *menuBar;
     SideBar *sideBar;
     PlayerBar *playerBar;
-    TreeView *mainView;
+    TreeView *treeView;
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    MenuBar *getMenuBar() const;
     SideBar *getSideBar() const;
     PlayerBar *getPlayerBar() const;
-    TreeView *getMainView() const;
+    TreeView *getTreeView() const;
 
-    void openFile();
+    void openFiles();
     void setSideBarVisible(bool visible);
 };

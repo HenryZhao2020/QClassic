@@ -1,8 +1,9 @@
 #pragma once
 
-#include <QString>
 #include <QUrl>
+#include <QString>
 #include <QMediaPlayer>
+#include <QAudioOutput>
 
 class Composer;
 

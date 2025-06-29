@@ -1,23 +1,19 @@
 #include "Composition.h"
 #include "Composer.h"
 
-#include <QFileInfo>
 #include <QTime>
-#include <QMediaPlayer>
-#include <QAudioOutput>
 
 Composition::Composition(const QUrl &source, const QString &title, Composer *composer)
-    : source{source},
-      title{title.isEmpty() ? source.fileName() : title},
+    : source{source}, title{title.isEmpty() ? source.fileName() : title},
       composer{composer}, player{new QMediaPlayer}, audioOutput{new QAudioOutput} {
 
-    player->setAudioOutput(audioOutput);
     player->setSource(source);
+    player->setAudioOutput(audioOutput);
 }
 
 Composition::~Composition() {
-    delete player;
     delete audioOutput;
+    delete player;
 }
 
 void Composition::setTitle(const QString &title) {
@@ -45,6 +41,5 @@ int Composition::getDurationMs() const {
 }
 
 QString Composition::getDurationFormat() const {
-    QTime time = QTime::fromMSecsSinceStartOfDay(getDurationMs());
-    return time.toString();
+    return QTime::fromMSecsSinceStartOfDay(getDurationMs()).toString();
 }

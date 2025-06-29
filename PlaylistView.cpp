@@ -18,12 +18,12 @@ void PlaylistView::onDoubleClick(const QModelIndex &modelIndex) {
 }
 
 void PlaylistView::addComposition(Composition *composition) {
-    playlist->addComposition(composition);
     currIndex = playlist->size() - 1;
 
     connect(composition->getMediaPlayer(), &QMediaPlayer::mediaStatusChanged,
             this, [this, composition] {
         auto item = addRow({composition->getTitle(), composition->getDurationFormat()});
+        playlist->addComposition(composition);
         setCurrentIndex(getModel()->indexFromItem(item[0]));
         disconnect(composition->getMediaPlayer(),
                    &QMediaPlayer::mediaStatusChanged,
@@ -34,11 +34,11 @@ void PlaylistView::addComposition(Composition *composition) {
 void PlaylistView::selectPrev() {
     if (playlist->isEmpty()) return;
 
-    auto composition = playlist->getCompositions().at(currIndex);
     if (currIndex > 0) {
         --currIndex;
         setCurrentIndex(getModel()->index(currIndex, 0));
     }
+    auto composition = playlist->getCompositions().at(currIndex);
     win->getPlayerBar()->setCurrentComposition(composition);
 }
 

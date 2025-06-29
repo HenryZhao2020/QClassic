@@ -1,7 +1,9 @@
 #pragma once
 
 #include <QTreeView>
+#include <QStandardItem>
 #include <QStandardItemModel>
+#include <QList>
 
 class MainWindow;
 

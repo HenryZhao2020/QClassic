@@ -2,7 +2,9 @@
 
 #include <QFrame>
 #include <QPushButton>
+#include <QSlider>
 #include <QLabel>
+#include <QTimer>
 
 class MainWindow;
 class Composition;
@@ -11,16 +13,26 @@ class PlayerBar : public QFrame {
     Q_OBJECT
 
     MainWindow *win;
-    QPushButton *prevButton;
     QPushButton *playButton;
+    QPushButton *prevButton;
     QPushButton *nextButton;
+
+    QSlider *timeSlider;
+    QLabel *timeLabel;
+
+    QSlider *volumeSlider;
+    QLabel *volumeLabel;
+    int volume;
+
     Composition *currComposition;
     bool playing;
 
 public:
     PlayerBar(MainWindow *win);
 
+    void setEnabled(bool enabled);
     void setCurrentComposition(Composition *composition);
+    void playOrPause();
     void play();
     void pause();
 };
