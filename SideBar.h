@@ -1,10 +1,10 @@
 #pragma once
 
-#include <QFrame>
+#include "TreeView.h"
 
 class MainWindow;
 
-class SideBar : public QFrame {
+class SideBar : public TreeView {
     Q_OBJECT
 
 public:

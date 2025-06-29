@@ -1,22 +1,23 @@
 #include "MainWindow.h"
-#include "Composition.h"
-#include "Library.h"
 #include "Playlist.h"
+#include "Library.h"
+#include "Composition.h"
 #include "MenuBar.h"
 #include "SideBar.h"
 #include "PlayerBar.h"
-#include "TreeView.h"
 #include "PlaylistView.h"
 
 #include <QSplitter>
 #include <QShortcut>
 #include <QFileDialog>
+#include <QModelIndex>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
-    lib{new Library}, tempPlaylist{new Playlist},
-    menuBar{new MenuBar{this}}, sideBar{new SideBar{this}},
+    openedFiles{new Playlist}, library{new Library},
+    menuBar{new MenuBar{this}},
+    sideBar{new SideBar{this}},
     playerBar{new PlayerBar{this}},
-    treeView{new PlaylistView{this, tempPlaylist}} {
+    treeView{new PlaylistView{this, openedFiles}} {
 
     auto splitter = new QSplitter{this};
     auto container = new QWidget{this};
@@ -31,8 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
     mainLayout->addWidget(treeView, 1);
 
-    resize(550, 650);
-    setSideBarVisible(false);
+    resize(800, 600);
 
     // Use <Cmd+W> to close window in macOS
     auto *closeShortcut = new QShortcut{QKeySequence::Close, this};
@@ -40,7 +40,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
 }
 
 MainWindow::~MainWindow() {
-    delete tempPlaylist;
+    delete openedFiles;
+    delete library;
 }
 
 MenuBar *MainWindow::getMenuBar() const {
@@ -60,14 +61,21 @@ TreeView *MainWindow::getTreeView() const {
 }
 
 void MainWindow::openFiles() {
-    const QList<QUrl> urls = QFileDialog::getOpenFileUrls(this);
+    const QList<QUrl> urls{QFileDialog::getOpenFileUrls(this)};
     if (urls.isEmpty()) return;
 
     auto plistView = dynamic_cast<PlaylistView *>(treeView);
-    Composition *composition = nullptr;
+
+    Composition *composition{nullptr};
+    QModelIndex index;
     for (const auto &url : urls) {
-        composition = new Composition{url.path()};
-        plistView->addComposition(composition);
+        composition = new Composition{url};
+        index = plistView->addComposition(composition);
+    }
+
+    if (urls.size() == 1) {
+        playerBar->setCurrentComposition(composition);
+        plistView->setCurrentIndex(index);
     }
 }
 

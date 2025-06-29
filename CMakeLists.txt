@@ -35,6 +35,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         TreeView.h TreeView.cpp
         ComposerView.h ComposerView.cpp
         Styles.qss
+        AppData.h AppData.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET QClassic APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

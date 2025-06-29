@@ -16,6 +16,8 @@ class Composition {
     QAudioOutput *audioOutput;
 
 public:
+    static QString millisecToString(int ms);
+
     Composition(const QUrl &source, const QString &title = "",
                 Composer *composer = nullptr);
     ~Composition();
@@ -28,5 +30,5 @@ public:
 
     QMediaPlayer *getMediaPlayer() const;
     int getDurationMs() const;
-    QString getDurationFormat() const;
+    QString getDurationString() const;
 };

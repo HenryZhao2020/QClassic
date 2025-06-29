@@ -2,14 +2,15 @@
 #include "MainWindow.h"
 #include "PlayerBar.h"
 #include "TreeView.h"
+#include "AppData.h"
 
 MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {
     auto fileMenu = addMenu(tr("File"));
     auto editMenu = addMenu(tr("Edit"));
     auto viewMenu = addMenu(tr("View"));
-    auto ctrlMenu = addMenu(tr("Control"));
+    auto ctrlMenu = addMenu(tr("Controls"));
 
-    auto openAction = new QAction{tr("Open Music File..."), this};
+    auto openAction = new QAction{tr("Open Music Files..."), this};
     openAction->setShortcut(QKeySequence::Open);
     connect(openAction, &QAction::triggered, win, &MainWindow::openFiles);
     fileMenu->addAction(openAction);
@@ -55,8 +56,39 @@ MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {
             [win] { win->getTreeView()->selectNext(); });
     ctrlMenu->addAction(nextAction);
 
+    repeatOffAction = new QAction{tr("Off"), this};
+    repeatOffAction->setCheckable(true);
+    connect(repeatOffAction, &QAction::triggered, this, [this] {
+        setRepeat(Repeat::Off);
+    });
+
+    repeatAllAction = new QAction{tr("All"), this};
+    repeatAllAction->setCheckable(true);
+    connect(repeatAllAction, &QAction::triggered, this, [this] {
+        setRepeat(Repeat::All);
+    });
+
+    repeatOneAction = new QAction{tr("One"), this};
+    repeatOneAction->setCheckable(true);
+    connect(repeatOneAction, &QAction::triggered, this, [this] {
+        setRepeat(Repeat::One);
+    });
+
+    auto repeatMenu = ctrlMenu->addMenu(tr("Repeat"));
+    repeatMenu->addAction(repeatOffAction);
+    repeatMenu->addAction(repeatAllAction);
+    repeatMenu->addAction(repeatOneAction);
+    setRepeat(AppData::instance().getRepeat());
+
     addMenu(fileMenu);
     addMenu(editMenu);
     addMenu(viewMenu);
     addMenu(ctrlMenu);
+}
+
+void MenuBar::setRepeat(Repeat repeat) {
+    AppData::instance().setRepeat(repeat);
+    repeatOffAction->setChecked(repeat == Repeat::Off);
+    repeatAllAction->setChecked(repeat == Repeat::All);
+    repeatOneAction->setChecked(repeat == Repeat::One);
 }

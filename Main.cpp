@@ -4,7 +4,7 @@
 #include <QDir>
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
+    QApplication app{argc, argv};
 
     QDir musicFolder{QDir::home()};
     if (musicFolder.cd("Music")) {

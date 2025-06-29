@@ -8,6 +8,7 @@
 
 class MainWindow;
 class Composition;
+enum class Repeat;
 
 class PlayerBar : public QFrame {
     Q_OBJECT
@@ -26,12 +27,14 @@ class PlayerBar : public QFrame {
 
     Composition *currComposition;
     bool playing;
+    Repeat repeat;
 
 public:
     PlayerBar(MainWindow *win);
 
     void setEnabled(bool enabled);
     void setCurrentComposition(Composition *composition);
+    void updateDuration();
     void playOrPause();
     void play();
     void pause();

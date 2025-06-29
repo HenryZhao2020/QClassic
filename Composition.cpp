@@ -3,9 +3,15 @@
 
 #include <QTime>
 
-Composition::Composition(const QUrl &source, const QString &title, Composer *composer)
+QString Composition::millisecToString(int ms) {
+    return QTime::fromMSecsSinceStartOfDay(ms).toString();
+}
+
+Composition::Composition(const QUrl &source, const QString &title,
+                         Composer *composer)
     : source{source}, title{title.isEmpty() ? source.fileName() : title},
-      composer{composer}, player{new QMediaPlayer}, audioOutput{new QAudioOutput} {
+      composer{composer}, player{new QMediaPlayer},
+      audioOutput{new QAudioOutput} {
 
     player->setSource(source);
     player->setAudioOutput(audioOutput);
@@ -40,6 +46,6 @@ int Composition::getDurationMs() const {
     return player->duration();
 }
 
-QString Composition::getDurationFormat() const {
-    return QTime::fromMSecsSinceStartOfDay(getDurationMs()).toString();
+QString Composition::getDurationString() const {
+    return millisecToString(getDurationMs());
 }

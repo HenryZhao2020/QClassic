@@ -40,6 +40,19 @@ QStandardItem *TreeView::addSection(const QString &text) {
     return section;
 }
 
+QStandardItem *TreeView::addRow(const QString &text, QStandardItem *section) {
+    auto item = new QStandardItem{text};
+    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+
+    if (section) {
+        section->appendRow(item);
+    } else {
+        model->appendRow(item);
+    }
+
+    return item;
+}
+
 QList<QStandardItem *> TreeView::addRow(const QStringList &texts, QStandardItem *section) {
     QList<QStandardItem *> items;
     for (const auto &text : texts) {

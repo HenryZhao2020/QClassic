@@ -22,6 +22,8 @@ public:
 
     void setHeaders(const QStringList &headers);
     QStandardItem *addSection(const QString &text);
+    QStandardItem *addRow(const QString &text,
+                          QStandardItem *section = nullptr);
     QList<QStandardItem *> addRow(const QStringList &texts,
                                   QStandardItem *section = nullptr);
 

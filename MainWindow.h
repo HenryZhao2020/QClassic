@@ -3,8 +3,8 @@
 #include <QMainWindow>
 #include <QVBoxLayout>
 
-class Library;
 class Playlist;
+class Library;
 
 class MenuBar;
 class SideBar;
@@ -14,8 +14,8 @@ class TreeView;
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
-    Library *lib;
-    Playlist *tempPlaylist;
+    Playlist *openedFiles;
+    Library *library;
 
     QVBoxLayout *mainLayout;
     MenuBar *menuBar;

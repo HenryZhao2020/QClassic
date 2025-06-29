@@ -19,7 +19,8 @@ protected:
 public:
     PlaylistView(MainWindow *win, Playlist *playlist);
 
-    void addComposition(Composition *composition);
+    void setCurrentIndex(const QModelIndex &index);
+    QModelIndex addComposition(Composition *composition);
     void selectPrev() override;
     void selectNext() override;
 };
