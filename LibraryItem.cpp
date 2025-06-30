@@ -2,9 +2,9 @@
 
 #include <QUuid>
 
-LibraryItem::LibraryItem(const QString &name, Library *lib)
-    : id{QUuid::createUuid().toString(QUuid::WithoutBraces)},
-      name{name}, lib{lib} {}
+LibraryItem::LibraryItem(const QString &name, Library *lib) :
+    id{QUuid::createUuid().toString(QUuid::WithoutBraces)},
+    name{name}, lib{lib} {}
 
 LibraryItem::~LibraryItem() {}
 

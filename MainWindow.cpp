@@ -3,23 +3,25 @@
 #include "SideBar.h"
 #include "PlayerBar.h"
 #include "PlaylistView.h"
+#include "QueueView.h"
 #include "LibraryView.h"
-#include "ComposerView.h"
+#include "ImportDialog.h"
 #include "Playlist.h"
 #include "Composition.h"
 #include "AppData.h"
 
 #include <QVBoxLayout>
+#include <QScreen>
 #include <QSplitter>
 #include <QShortcut>
 #include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
-    openedFiles{new Playlist},
     menuBar{new MenuBar{this}},
     sideBar{new SideBar{this}},
     playerBar{new PlayerBar{this}},
-    filesView{new PlaylistView{this, openedFiles}},
+    playQueue{new Playlist},
+    queueView{new QueueView{this, playQueue}},
     libView{new LibraryView{this, AppData::instance().getLibrary()}},
     playlistView{nullptr} {
 
@@ -35,7 +37,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     mainLayout->setSpacing(0);
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
 
-    resize(800, 600);
+    resize(900, 650);
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
+                                    screen()->availableGeometry()));
     setSideBarVisible(AppData::instance().isSideBarVisible());
 
     // Use <Cmd+W> to close window in macOS
@@ -44,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
 }
 
 MainWindow::~MainWindow() {
-    delete openedFiles;
+    delete playQueue;
 }
 
 MenuBar *MainWindow::getMenuBar() const {
@@ -60,17 +64,17 @@ PlayerBar *MainWindow::getPlayerBar() const {
 }
 
 PlaylistView *MainWindow::getPlaylistView() const {
-    return filesView;
+    return playlistView;
 }
 
-void MainWindow::setPlaylistView(Section section) {
+void MainWindow::setPlaylistView(Section section, Playlist *playlist) {
     if (playlistView) {
         mainLayout->removeWidget(playlistView);
         playlistView->hide();
     }
 
-    if (section == Section::OpenedFiles) {
-        playlistView = filesView;
+    if (section == Section::PlayQueue) {
+        playlistView = queueView;
     } else if (section == Section::Library) {
         playlistView = libView;
     } else {
@@ -79,43 +83,37 @@ void MainWindow::setPlaylistView(Section section) {
 
     if (playlistView) {
         mainLayout->addWidget(playlistView, 1);
-        playlistView->show();               // ensure it's made visible
-        playlistView->update();             // force redraw
-        mainLayout->update();               // update layout itself
-        mainLayout->invalidate();           // trigger layout recalculation
+        playlistView->show();
         sideBar->setCurrentSection(section);
     }
 }
 
-void MainWindow::setComposerView(Composer *composer) {
-    ComposerView *composerView{nullptr};
-    if (!composerViewMap.contains(composer)) {
-        composerView = new ComposerView{this, composer};
-        composerViewMap.insert(composer, composerView);
-    } else {
-        composerViewMap.value(composer);
-    }
-
-    if (playlistView) {
-        mainLayout->removeWidget(playlistView);
-    }
-    mainLayout->addWidget(composerView, 1);
-}
-
-void MainWindow::openFiles() {
+void MainWindow::addToQueue() {
     const QList<QUrl> urls{QFileDialog::getOpenFileUrls(this)};
     if (urls.isEmpty()) return;
 
     QModelIndex index;
     for (const auto &url : urls) {
-        index = filesView->addComposition(new Composition{url});
+        index = queueView->addComposition(new Composition{url});
     }
 
     if (urls.size() == 1) {
-        filesView->setCurrentIndex(index);
+        queueView->setCurrentIndex(index);
     }
+    setPlaylistView(Section::PlayQueue);
+}
 
-    setPlaylistView(Section::OpenedFiles);
+void MainWindow::importLibrary() {
+    QUrl url{QFileDialog::getOpenFileUrl(this)};
+    if (url.isEmpty()) return;
+
+    auto dialog = new ImportDialog{libView, url};
+    dialog->show();
+
+    connect(dialog, &QDialog::finished, this, [this] (int) {
+        setPlaylistView(Section::Library);
+        libView->setCurrentIndex(libView->currentIndex());
+    });
 }
 
 void MainWindow::setSideBarVisible(bool visible) {

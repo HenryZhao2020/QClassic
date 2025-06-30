@@ -18,7 +18,9 @@ PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
     timeLabel{new QLabel{Composition::millisecToString(0), this}},
     volumeSlider{new QSlider{Qt::Horizontal, this}},
     volumeLabel{new QLabel{QString::number(MAX_VOLUME) + "%", this}},
-    volume{MAX_VOLUME}, currComposition{nullptr}, playing{false} {
+    volume{MAX_VOLUME},
+    currComposition{nullptr},
+    playing{false} {
 
     auto barLayout = new QHBoxLayout{this};
     barLayout->setAlignment(Qt::AlignLeft);

@@ -1,24 +1,20 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QMap>
 
-class Playlist;
-class Composer;
 class QVBoxLayout;
 class MenuBar;
 class SideBar;
 class PlayerBar;
 class PlaylistView;
+class QueueView;
 class LibraryView;
-class ComposerView;
+
+class Playlist;
 enum class Section;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
-
-    Playlist *openedFiles;
-    QMap<Composer *, ComposerView *> composerViewMap;
 
     QVBoxLayout *mainLayout;
     MenuBar *menuBar;
@@ -26,7 +22,8 @@ class MainWindow : public QMainWindow {
     PlayerBar *playerBar;
     PlaylistView *playlistView;
 
-    PlaylistView *filesView;
+    Playlist *playQueue;
+    QueueView *queueView;
     LibraryView *libView;
 
 public:
@@ -37,9 +34,9 @@ public:
     SideBar *getSideBar() const;
     PlayerBar *getPlayerBar() const;
     PlaylistView *getPlaylistView() const;
-    void setPlaylistView(Section section);
-    void setComposerView(Composer *composer);
+    void setPlaylistView(Section section, Playlist *playlist = nullptr);
 
-    void openFiles();
+    void addToQueue();
+    void importLibrary();
     void setSideBarVisible(bool visible);
 };

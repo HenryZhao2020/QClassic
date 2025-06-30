@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     styleSheet.close();
 
     MainWindow win;
-    win.setPlaylistView(Section::OpenedFiles);
+    win.setPlaylistView(Section::PlayQueue);
     win.show();
     return app.exec();
 }

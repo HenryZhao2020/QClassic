@@ -14,9 +14,7 @@ TreeView::TreeView(MainWindow *win, const QStringList &headers)
     model->setHorizontalHeaderLabels(headers);
     setModel(model);
 
-    for (int i = 0; i < columnCount - 1; ++i) {
-        header()->setSectionResizeMode(i, QHeaderView::Stretch);
-    }
+    header()->setSectionResizeMode(0, QHeaderView::Stretch);
     header()->setStretchLastSection(columnCount == DEFAULT_COLUMN_COUNT);
     header()->setVisible(columnCount != DEFAULT_COLUMN_COUNT);
 }

@@ -2,17 +2,14 @@
 
 #include "PlaylistView.h"
 
-class Library;
+class Playlist;
 
-class LibraryView : public PlaylistView {
+class QueueView : public PlaylistView {
     Q_OBJECT
-
-    MainWindow *win;
-    Library *lib;
 
 protected:
     QList<QStandardItem *> addRow(Composition *composition) override;
 
 public:
-    LibraryView(MainWindow *win, Library *lib);
+    QueueView(MainWindow *win, Playlist *queue);
 };

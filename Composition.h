@@ -5,13 +5,12 @@
 #include <QUrl>
 #include <QString>
 
-class Composer;
 class QMediaPlayer;
 class QAudioOutput;
 
 class Composition : public LibraryItem {
     QUrl source;
-    Composer *composer;
+    QString composer;
     QMediaPlayer *player;
     QAudioOutput *audioOutput;
 
@@ -19,11 +18,11 @@ public:
     static QString millisecToString(int ms);
 
     Composition(const QUrl &source, const QString &name = "",
-                Composer *composer = nullptr);
+                const QString &composer = "");
     ~Composition();
 
-    void setComposer(Composer *composer);
-    Composer *getComposer() const;
+    void setComposer(const QString &composer);
+    QString getComposer() const;
 
     QMediaPlayer *getMediaPlayer() const;
     int getDurationMs() const;

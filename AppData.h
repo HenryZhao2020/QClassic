@@ -12,13 +12,15 @@ class AppData {
     AppData();
 
 public:
-    ~AppData();
-
     static AppData &instance();
 
-    Library *getLibrary() const;    
+    ~AppData();
+
+    Library *getLibrary() const;
+
     void setRepeat(Repeat repeat);
     Repeat getRepeat() const;
+
     void setSideBarVisible(bool visible);
     bool isSideBarVisible() const;
 };

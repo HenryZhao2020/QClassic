@@ -11,22 +11,21 @@ class PlaylistView : public TreeView {
 
     MainWindow *win;
     Playlist *playlist;
-    int currPlaying;
+    Composition *selectedComposition;
+    int playingRowIndex;
 
 protected:
+    Composition *getCompositionAt(const QModelIndex &index);
     virtual void onSingleClick(const QModelIndex &index);
     virtual void onDoubleClick(const QModelIndex &index);
-    virtual QList<QStandardItem *> addRow(Composition *composition);
-    Composition *getCompositionAt(const QModelIndex &index);
+    virtual QList<QStandardItem *> addRow(Composition *composition) = 0;
 
 public:
     PlaylistView(MainWindow *win, Playlist *playlist,
-                 const QStringList &headers = {tr("File Name"),
-                                               tr("Duration")});
+                 const QStringList &headers);
 
     void setCurrentIndex(const QModelIndex &index);
     QModelIndex addComposition(Composition *composition);
-
     virtual void selectPrev();
     virtual void selectNext();
 };

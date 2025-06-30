@@ -12,8 +12,13 @@ MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {
 
     auto openAction = new QAction{tr("Open Music Files..."), this};
     openAction->setShortcut(QKeySequence::Open);
-    connect(openAction, &QAction::triggered, win, &MainWindow::openFiles);
+    connect(openAction, &QAction::triggered, win, &MainWindow::addToQueue);
     fileMenu->addAction(openAction);
+
+    auto importAction = new QAction{tr("Import To Library"), this};
+    connect(importAction, &QAction::triggered, win,
+            &MainWindow::importLibrary);
+    fileMenu->addAction(importAction);
 
     auto exitAction = new QAction(tr("Exit"), this);
     exitAction->setShortcut(QKeySequence::Quit);

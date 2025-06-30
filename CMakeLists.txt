@@ -23,7 +23,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         Composition.h Composition.cpp
-        Composer.h Composer.cpp
+
         Library.h Library.cpp
         PlayerBar.h PlayerBar.cpp
         SideBar.h SideBar.cpp
@@ -38,7 +38,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         AppData.h AppData.cpp
         LibraryItem.h LibraryItem.cpp
         LibraryView.h LibraryView.cpp
-        ComposerView.h ComposerView.cpp
+        QueueView.h QueueView.cpp
+        ImportDialog.h ImportDialog.cpp
+
 
     )
 # Define target properties for Android with Qt 6 as:

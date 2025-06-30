@@ -1,7 +1,9 @@
 #include "AppData.h"
 #include "Library.h"
 
-AppData::AppData() : lib{new Library}, repeat{Repeat::Off},
+AppData::AppData() :
+    lib{new Library},
+    repeat{Repeat::Off},
     sideBarVisible{true} {}
 
 AppData::~AppData() {

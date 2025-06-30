@@ -9,10 +9,10 @@ QString Composition::millisecToString(int ms) {
 }
 
 Composition::Composition(const QUrl &source, const QString &name,
-                         Composer *composer)
-    : LibraryItem{name.isEmpty() ? source.fileName() : name},
-      source{source}, composer{composer}, player{new QMediaPlayer},
-      audioOutput{new QAudioOutput} {
+                         const QString &composer) :
+    LibraryItem{name.isEmpty() ? source.fileName() : name},
+    source{source}, composer{composer},
+    player{new QMediaPlayer}, audioOutput{new QAudioOutput} {
 
     player->setSource(source);
     player->setAudioOutput(audioOutput);
@@ -23,11 +23,11 @@ Composition::~Composition() {
     delete player;
 }
 
-void Composition::setComposer(Composer *composer) {
+void Composition::setComposer(const QString &composer) {
     this->composer = composer;
 }
 
-Composer *Composition::getComposer() const {
+QString Composition::getComposer() const {
     return composer;
 }
 

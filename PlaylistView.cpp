@@ -6,32 +6,17 @@
 #include "AppData.h"
 
 #include <QMediaPlayer>
+#include <QTimer>
 
 static constexpr int DATA_COLUMN{0};
-static constexpr int DURATION_COLUMN{1};
 
 PlaylistView::PlaylistView(MainWindow *win, Playlist *playlist,
                           const QStringList &headers)
-    : TreeView{win, headers}, win{win}, playlist{playlist}, currPlaying{0} {
+    : TreeView{win, headers}, win{win}, playlist{playlist}, playingRowIndex{0} {
 
     connect(this, &PlaylistView::clicked, this, &PlaylistView::onSingleClick);
     connect(this, &PlaylistView::doubleClicked, this,
             &PlaylistView::onDoubleClick);
-}
-
-void PlaylistView::onSingleClick(const QModelIndex &index) {
-    Composition *c = getCompositionAt(index);
-    qDebug() << "Selected: " << c->getName();
-}
-
-void PlaylistView::onDoubleClick(const QModelIndex &modelIndex) {
-    setCurrentIndex(modelIndex);
-    win->getPlayerBar()->play();
-}
-
-QList<QStandardItem *> PlaylistView::addRow(Composition *composition) {
-    return TreeView::addRow({composition->getName(),
-                             composition->getDurationString()});
 }
 
 Composition *PlaylistView::getCompositionAt(const QModelIndex &index) {
@@ -40,9 +25,18 @@ Composition *PlaylistView::getCompositionAt(const QModelIndex &index) {
     return static_cast<Composition *>(data);
 }
 
+void PlaylistView::onSingleClick(const QModelIndex &index) {
+    selectedComposition = getCompositionAt(index);
+}
+
+void PlaylistView::onDoubleClick(const QModelIndex &modelIndex) {
+    setCurrentIndex(modelIndex);
+    win->getPlayerBar()->play();
+}
+
 void PlaylistView::setCurrentIndex(const QModelIndex &index) {
-    currPlaying = index.row();
-    auto composition = playlist->getCompositions().at(currPlaying);
+    playingRowIndex = index.row();
+    auto composition = playlist->getCompositions().at(playingRowIndex);
     win->getPlayerBar()->setCurrentComposition(composition);
     TreeView::setCurrentIndex(index);
 }
@@ -57,36 +51,36 @@ QModelIndex PlaylistView::addComposition(Composition *composition) {
         Qt::UserRole);
     connect(composition->getMediaPlayer(), &QMediaPlayer::mediaStatusChanged,
             this, [this, row, composition] {
-        auto durationItem = row[DURATION_COLUMN];
+        auto durationItem = row.back();
         durationItem->setText(composition->getDurationString());
         win->getPlayerBar()->updateDuration();
     });
 
-    setFocus();
+    QTimer::singleShot(0, this, [this] { setFocus(); });
     return getModel()->indexFromItem(row[DATA_COLUMN]);
 }
 
 void PlaylistView::selectPrev() {
     if (playlist->isEmpty()) return;
 
-    if (AppData::instance().getRepeat() != Repeat::One && currPlaying > 0) {
-        --currPlaying;
+    if (AppData::instance().getRepeat() != Repeat::One && playingRowIndex > 0) {
+        --playingRowIndex;
     }
 
-    setCurrentIndex(getModel()->index(currPlaying, DATA_COLUMN));
+    setCurrentIndex(getModel()->index(playingRowIndex, DATA_COLUMN));
 }
 
 void PlaylistView::selectNext() {
     if (playlist->isEmpty()) return;
 
     auto repeat = AppData::instance().getRepeat();
-    if (currPlaying < playlist->size() - 1 && repeat != Repeat::One) {
-        ++currPlaying;
+    if (playingRowIndex < playlist->size() - 1 && repeat != Repeat::One) {
+        ++playingRowIndex;
     } else if (repeat == Repeat::All) {
-        currPlaying = 0;
+        playingRowIndex = 0;
     } else if (repeat == Repeat::Off) {
         return;
     }
 
-    setCurrentIndex(getModel()->index(currPlaying, DATA_COLUMN));
+    setCurrentIndex(getModel()->index(playingRowIndex, DATA_COLUMN));
 }

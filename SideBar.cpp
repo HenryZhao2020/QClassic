@@ -1,19 +1,17 @@
 #include "SideBar.h"
 #include "MainWindow.h"
 
-static constexpr int SectionRole{Qt::UserRole + 1};
-
 SideBar::SideBar(MainWindow *win) : TreeView{win}, win{win} {
-    auto filesSection = addRow(tr("Opened Files"));
-    filesSection->setData(QVariant::fromValue(Section::OpenedFiles));
+    setFocusPolicy(Qt::NoFocus);
+
+    auto queueSection = addRow(tr("Play Queue"));
+    queueSection->setData(QVariant::fromValue(Section::PlayQueue));
 
     auto libSection = addRow(tr("Library"));
     libSection->setData(QVariant::fromValue(Section::Library));
 
-    auto composerSection = addSection(tr("Composer"));
-    addRow(tr("Haydn"), composerSection);
-    addRow(tr("Bach"), composerSection);
-    addRow(tr("Beethoven"), composerSection);
+    auto playlistSection = addSection(tr("Playlist"));
+    addRow("Bach's Lunch", playlistSection);
 
     connect(selectionModel(), &QItemSelectionModel::currentChanged,
             this, &SideBar::onSelection);
@@ -24,40 +22,19 @@ void SideBar::onSelection(const QModelIndex &current, const QModelIndex &) {
     if (!item) return;
 
     Section section = static_cast<Section>(item->data().toInt());
-    QString text = item->text();
-
-    switch (section) {
-    case Section::OpenedFiles:
-        qDebug() << "Opened Files Selected";
-        win->setPlaylistView(Section::OpenedFiles);
-        break;
-
-    case Section::Library:
-        qDebug() << "Library Selected";
-        win->setPlaylistView(Section::Library);
-        break;
-
-    case Section::Composer:
-        qDebug() << "Composer Selected: " << text;
-        break;
-
-    default:
-        qWarning() << "Unknown item selected:" << text;
-        break;
-    }
+    win->setPlaylistView(section);
 }
 
 void SideBar::setCurrentSection(Section section) {
-    for (int row = 0; row < getModel()->rowCount(); ++row) {
-        QStandardItem *item = getModel()->item(row);
+    for (int i = 0; i < getModel()->rowCount(); ++i) {
+        auto item = getModel()->item(i);
         if (!item) continue;
 
-        QVariant var = item->data();
-        if (var.canConvert<Section>() && var.value<Section>() == section) {
-            QModelIndex index = getModel()->index(row, 0);
-            this->setCurrentIndex(index);
-            this->scrollTo(index);
-            return;
+        if (section == static_cast<Section>(item->data().toInt())) {
+            QModelIndex index = getModel()->indexFromItem(item);
+            setCurrentIndex(index);
+            scrollTo(index);
+            break;
         }
     }
 }
