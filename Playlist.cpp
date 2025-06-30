@@ -1,6 +1,15 @@
 #include "Playlist.h"
 #include "Composition.h"
 
+Playlist *Playlist::createPlaylist(const QList<Composition *> &compositions,
+                                   const QString &name, Library *lib) {
+    auto playlist = new Playlist{name, lib};
+    for (auto composition : compositions) {
+        playlist->addComposition(composition);
+    }
+    return playlist;
+}
+
 Playlist::Playlist(const QString &name, Library *lib)
     : LibraryItem{name, lib} {}
 

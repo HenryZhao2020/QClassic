@@ -12,6 +12,10 @@ class Playlist : public LibraryItem {
     QList<Composition *> compositions;
 
 public:
+    static Playlist *createPlaylist(const QList<Composition *> &compositions,
+                                    const QString &name = "",
+                                    Library *lib = nullptr);
+
     Playlist(const QString &name = "", Library *lib = nullptr);
     ~Playlist();
 

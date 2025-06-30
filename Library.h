@@ -9,11 +9,12 @@ class Library {
     QList<Composition *> compositions;
     QList<Composer *> composers;
 
+    Library();
+
     bool addComposer(Composer *composer);
     bool removeComposer(Composer *composer);
 
 public:
-    Library();
     ~Library();
 
     bool addComposition(Composition *composition);
@@ -21,4 +22,6 @@ public:
     const QList<Composition *> &getCompositions() const;
 
     const QList<Composer *> &getComposers() const;
+
+    friend class AppData;
 };

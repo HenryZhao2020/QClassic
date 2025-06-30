@@ -33,10 +33,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Playlist.h Playlist.cpp
         PlaylistView.h PlaylistView.cpp
         TreeView.h TreeView.cpp
-        ComposerView.h ComposerView.cpp
+
         Styles.qss
         AppData.h AppData.cpp
         LibraryItem.h LibraryItem.cpp
+        LibraryView.h LibraryView.cpp
+        ComposerView.h ComposerView.cpp
 
     )
 # Define target properties for Android with Qt 6 as:

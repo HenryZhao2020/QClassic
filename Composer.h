@@ -18,6 +18,4 @@ public:
     bool addComposition(Composition *composition);
     bool removeComposition(Composition *composition);
     const QList<Composition *> &getCompositions() const;
-
-    Playlist *getPlaylist() const;
 };

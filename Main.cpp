@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "SideBar.h"
 
 #include <QApplication>
 #include <QDir>
@@ -15,6 +16,7 @@ int main(int argc, char *argv[]) {
     styleSheet.close();
 
     MainWindow win;
+    win.setPlaylistView(Section::OpenedFiles);
     win.show();
     return app.exec();
 }

@@ -21,11 +21,3 @@ bool Composer::removeComposition(Composition *composition) {
 const QList<Composition *> &Composer::getCompositions() const {
     return compositions;
 }
-
-Playlist *Composer::getPlaylist() const {
-    auto playlist = new Playlist;
-    for (auto composition : std::as_const(compositions)) {
-        playlist->addComposition(composition);
-    }
-    return playlist;
-}
