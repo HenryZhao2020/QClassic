@@ -1,28 +1,8 @@
 #pragma once
 
-#include "LibraryItem.h"
+#include "ICompositionList.h"
 
-#include <QList>
-#include <QString>
-
-class Composition;
-class Library;
-
-class Playlist : public LibraryItem {
-    QList<Composition *> compositions;
-
+class Playlist : public ICompositionList {
 public:
-    static Playlist *createPlaylist(const QList<Composition *> &compositions,
-                                    const QString &name = "",
-                                    Library *lib = nullptr);
-
-    Playlist(const QString &name = "", Library *lib = nullptr);
-    ~Playlist();
-
-    void addComposition(Composition *composition);
-    bool removeComposition(Composition *composition);
-    const QList<Composition *> &getCompositions() const;
-
-    int size() const;
-    bool isEmpty() const;
+    Playlist(const QString &name = "");
 };

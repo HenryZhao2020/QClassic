@@ -1,18 +1,11 @@
 #pragma once
 
-#include <QList>
+#include "ICompositionList.h"
 
-class Composition;
-
-class Library {
-    QList<Composition *> compositions;
-
+class Library : public ICompositionList {
 public:
-    Library();
     ~Library();
 
-    void addComposition(Composition *composition);
-    void removeComposition(Composition *composition);
-    bool containsComposition(Composition *composition);
-    const QList<Composition *> &getCompositions() const;
+    void addComposition(Composition *composition) override;
+    bool removeComposition(Composition *compositoon) override;
 };

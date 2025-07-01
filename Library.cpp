@@ -1,35 +1,22 @@
 #include "Library.h"
 #include "Composition.h"
 
-Library::Library() {}
-
 Library::~Library() {
-    for (auto c : std::as_const(compositions)) {
+    for (Composition *c : getCompositions()) {
         delete c;
     }
 }
 
 void Library::addComposition(Composition *composition) {
     Q_ASSERT(composition);
-    compositions.append(composition);
-}
-
-void Library::removeComposition(Composition *composition) {
-    Q_ASSERT(composition);
-    compositions.removeOne(composition);
-    delete composition;
-}
-
-bool Library::containsComposition(Composition *composition) {
-    Q_ASSERT(composition);
-    for (auto c : std::as_const(compositions)) {
-        if (*c == *composition) {
-            return true;
-        }
+    if (!containsComposition(composition)) {
+        ICompositionList::addComposition(composition);
     }
-    return false;
 }
 
-const QList<Composition *> &Library::getCompositions() const {
-    return compositions;
+bool Library::removeComposition(Composition *composition) {
+    Q_ASSERT(composition);
+    bool returnVal{ICompositionList::removeComposition(composition)};
+    delete composition;
+    return returnVal;
 }

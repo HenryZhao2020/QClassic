@@ -1,7 +1,7 @@
 #include "ICompositionView.h"
 #include "MainWindow.h"
 #include "PlayerBar.h"
-#include "Playlist.h"
+#include "ICompositionList.h"
 #include "Composition.h"
 #include "AppData.h"
 
@@ -9,13 +9,12 @@
 #include <QTimer>
 #include <QMenu>
 
-static constexpr int DATA_COLUMN{0};
+ICompositionView::ICompositionView(MainWindow *win, ICompositionList *list) :
+    TreeView{win, {tr("Title"), tr("Composer"), tr("Duration")}},
+    win{win}, list{list}, playingRowIndex{0} {
 
-ICompositionView::ICompositionView(MainWindow *win, Playlist *playlist,
-    const QStringList &headers) : TreeView{win, headers}, win{win},
-    playlist{playlist}, playingRowIndex{0} {
-
-    connect(this, &ICompositionView::clicked, this, &ICompositionView::onSingleClick);
+    connect(this, &ICompositionView::clicked, this,
+            &ICompositionView::onSingleClick);
     connect(this, &ICompositionView::doubleClicked, this,
             &ICompositionView::onDoubleClick);
 
@@ -24,8 +23,42 @@ ICompositionView::ICompositionView(MainWindow *win, Playlist *playlist,
             &ICompositionView::onContextMenu);
 }
 
+ICompositionView::~ICompositionView() {}
+
+QList<QStandardItem *> ICompositionView::addRow(Composition *composition) {
+    Q_ASSERT(composition);
+    auto row = TreeView::addRow({composition->getName(),
+                                 composition->getComposer(),
+                                 composition->getDurationString()});
+
+    row[Column::Title]->setData(
+        QVariant::fromValue(static_cast<void *>(composition)),
+        Qt::UserRole);
+
+    connect(composition->getMediaPlayer(), &QMediaPlayer::mediaStatusChanged,
+            this, [this, row, composition] {
+        auto durationItem = row[Column::Duration];
+        durationItem->setText(composition->getDurationString());
+        win->getPlayerBar()->updateDuration();
+    });
+
+    return row;
+}
+
+void ICompositionView::removeRow(const QModelIndex &index) {
+    win->getPlayerBar()->setCurrentComposition(nullptr);
+    if (list->removeComposition(getCompositionAt(index))) {
+        getModel()->removeRow(index.row());
+    }
+
+    auto newIndex = currentIndex();
+    if (newIndex.isValid()) {
+        win->getPlayerBar()->setCurrentComposition(getCompositionAt(newIndex));
+    }
+}
+
 Composition *ICompositionView::getCompositionAt(const QModelIndex &index) {
-    auto item = getModel()->index(index.row(), DATA_COLUMN);
+    auto item = getModel()->index(index.row(), Column::Title);
     void *data = item.data(Qt::UserRole).value<void *>();
     return static_cast<Composition *>(data);
 }
@@ -59,51 +92,36 @@ void ICompositionView::onContextMenu(const QPoint &pos) {
 
 void ICompositionView::setCurrentIndex(const QModelIndex &index) {
     playingRowIndex = index.row();
-    auto composition = playlist->getCompositions().at(playingRowIndex);
+    auto composition = getCompositionAt(index);
     win->getPlayerBar()->setCurrentComposition(composition);
     TreeView::setCurrentIndex(index);
 }
 
 void ICompositionView::addComposition(Composition *composition, bool select) {
     Q_ASSERT(composition);
-    playlist->addComposition(composition);
-
+    list->addComposition(composition);
     auto row = addRow(composition);
-    row[DATA_COLUMN]->setData(
-        QVariant::fromValue(static_cast<void *>(composition)),
-        Qt::UserRole);
-    connect(composition->getMediaPlayer(), &QMediaPlayer::mediaStatusChanged,
-            this, [this, row, composition] {
-        auto durationItem = row.back();
-        durationItem->setText(composition->getDurationString());
-        win->getPlayerBar()->updateDuration();
-    });
 
     QTimer::singleShot(0, this, [this] { setFocus(); });
-    QModelIndex index{getModel()->indexFromItem(row[DATA_COLUMN])};
+    QModelIndex index{getModel()->indexFromItem(row[Column::Title])};
     if (select) setCurrentIndex(index);
 }
 
-void ICompositionView::removeRow(const QModelIndex &index) {
-    playlist->removeComposition(getCompositionAt(index));
-    getModel()->removeRow(index.row());
-}
-
 void ICompositionView::selectPrev() {
-    // if (playlist->isEmpty()) return;
+    if (list->isEmpty()) return;
 
     if (AppData::instance().getRepeat() != Repeat::One && playingRowIndex > 0) {
         --playingRowIndex;
     }
 
-    setCurrentIndex(getModel()->index(playingRowIndex, DATA_COLUMN));
+    setCurrentIndex(getModel()->index(playingRowIndex, Column::Title));
 }
 
 void ICompositionView::selectNext() {
-    if (playlist->isEmpty()) return;
+    if (list->isEmpty()) return;
 
     auto repeat = AppData::instance().getRepeat();
-    if (playingRowIndex < playlist->size() - 1 && repeat != Repeat::One) {
+    if (playingRowIndex < list->size() - 1 && repeat != Repeat::One) {
         ++playingRowIndex;
     } else if (repeat == Repeat::All) {
         playingRowIndex = 0;
@@ -111,5 +129,5 @@ void ICompositionView::selectNext() {
         return;
     }
 
-    setCurrentIndex(getModel()->index(playingRowIndex, DATA_COLUMN));
+    setCurrentIndex(getModel()->index(playingRowIndex, Column::Title));
 }

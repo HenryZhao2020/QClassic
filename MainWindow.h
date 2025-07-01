@@ -34,10 +34,10 @@ public:
     SideBar *getSideBar() const;
     PlayerBar *getPlayerBar() const;
     ICompositionView *getPlaylistView() const;
+
+    void setSideBarVisible(bool visible);
     void setPlaylistView(Section section, Playlist *playlist = nullptr);
 
     void addToQueue();
     void importLibrary();
-    void setSideBarVisible(bool visible);
-    void loadData();
 };

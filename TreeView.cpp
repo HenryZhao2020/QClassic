@@ -47,5 +47,7 @@ QList<QStandardItem *> TreeView::addRow(const QStringList &list,
     } else {
         model->appendRow(items);
     }
+    resizeColumnToContents(0);  // Necessary for setting row height
+
     return items;
 }

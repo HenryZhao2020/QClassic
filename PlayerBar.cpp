@@ -70,6 +70,7 @@ void PlayerBar::setCurrentComposition(Composition *composition) {
 
     setEnabled(composition);
     win->setWindowTitle(composition ? composition->getName() : "");
+    if (!composition) return;
 
     initTimeSlider(composition);
     auto player = currComposition->getMediaPlayer();

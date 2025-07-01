@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     // Use <Cmd+W> to close window in macOS
     auto closeShortcut = new QShortcut{QKeySequence::Close, this};
     connect(closeShortcut, &QShortcut::activated, this, &QWidget::close);
+
+    setPlaylistView(Section::PlayQueue);
 }
 
 MainWindow::~MainWindow() {
@@ -66,6 +68,12 @@ PlayerBar *MainWindow::getPlayerBar() const {
 
 ICompositionView *MainWindow::getPlaylistView() const {
     return playlistView;
+}
+
+void MainWindow::setSideBarVisible(bool visible) {
+    menuBar->showSideBarAction->setChecked(visible);
+    sideBar->setVisible(visible);
+    AppData::instance().setSideBarVisible(visible);
 }
 
 void MainWindow::setPlaylistView(Section section, Playlist *playlist) {
@@ -109,17 +117,4 @@ void MainWindow::importLibrary() {
     connect(dialog, &QDialog::finished, this, [this] (int) {
         setPlaylistView(Section::Library);
     });
-}
-
-void MainWindow::setSideBarVisible(bool visible) {
-    menuBar->showSideBarAction->setChecked(visible);
-    sideBar->setVisible(visible);
-    AppData::instance().setSideBarVisible(visible);
-}
-
-void MainWindow::loadData() {
-    auto lib = AppData::instance().getLibrary();
-    for (auto composition : lib->getCompositions()) {
-        libView->addComposition(composition);
-    }
 }

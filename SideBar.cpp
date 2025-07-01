@@ -10,8 +10,8 @@ SideBar::SideBar(MainWindow *win) : TreeView{win}, win{win} {
     auto libSection = addRow(tr("Library"));
     libSection->setData(QVariant::fromValue(Section::Library));
 
-    auto playlistSection = addSection(tr("Playlist"));
-    addRow("Bach's Lunch", playlistSection);
+    // auto playlistSection = addSection(tr("Playlist"));
+    // addRow("Bach's Lunch", playlistSection);
 
     connect(selectionModel(), &QItemSelectionModel::currentChanged,
             this, &SideBar::onSelection);

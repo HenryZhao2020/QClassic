@@ -19,11 +19,9 @@ int main(int argc, char *argv[]) {
     }
     styleSheet.close();
 
+    AppData::instance().load();
+
     MainWindow win;
-    win.setPlaylistView(Section::PlayQueue);
-    if (AppData::instance().load()) {
-        win.loadData();
-    }
     win.show();
     return app.exec();
 }

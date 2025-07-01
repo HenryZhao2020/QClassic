@@ -36,10 +36,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         Styles.qss
         AppData.h AppData.cpp
-        LibraryItem.h LibraryItem.cpp
+        Identifiable.h Identifiable.cpp
         LibraryView.h LibraryView.cpp
         QueueView.h QueueView.cpp
         ImportDialog.h ImportDialog.cpp
+        ICompositionList.h ICompositionList.cpp
+
 
 
     )

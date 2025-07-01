@@ -62,7 +62,10 @@ bool AppData::load() {
         QUrl source;
         QString name, composer;
         in >> id >> source >> name >> composer;
-        lib->addComposition(new Composition{source, name, composer, id});
+
+        auto composition = new Composition{source, name, composer};
+        composition->setId(id);
+        lib->addComposition(composition);
     }
 
     in >> repeat;

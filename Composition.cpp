@@ -9,8 +9,9 @@ QString Composition::millisecToString(int ms) {
 }
 
 Composition::Composition(const QUrl &source, const QString &name,
-                         const QString &composer, const QUuid &id) :
-    LibraryItem{name.isEmpty() ? source.fileName() : name, nullptr, id},
+                         const QString &composer) :
+    Identifiable{name.isEmpty() ? source.fileName() : name,
+                 QUuid::createUuid()},
     source{source}, composer{composer},
     player{new QMediaPlayer}, audioOutput{new QAudioOutput} {
 

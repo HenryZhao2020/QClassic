@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LibraryItem.h"
+#include "Identifiable.h"
 
 #include <QUrl>
 #include <QString>
@@ -9,7 +9,7 @@
 class QMediaPlayer;
 class QAudioOutput;
 
-class Composition : public LibraryItem {
+class Composition : public Identifiable {
     QUrl source;
     QString composer;
     QMediaPlayer *player;
@@ -19,8 +19,7 @@ public:
     static QString millisecToString(int ms);
 
     Composition(const QUrl &source, const QString &name = "",
-                const QString &composer = "",
-                const QUuid &id = QUuid::createUuid());
+                const QString &composer = "");
     ~Composition();
 
     QUrl getSource() const;
