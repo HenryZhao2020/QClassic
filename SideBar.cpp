@@ -10,8 +10,8 @@ SideBar::SideBar(MainWindow *win) : TreeView{win}, win{win} {
     auto libSection = addRow(tr("Library"));
     libSection->setData(QVariant::fromValue(Section::Library));
 
-    // auto playlistSection = addSection(tr("Playlist"));
-    // addRow("Bach's Lunch", playlistSection);
+    auto playlistSection = addSection(tr("Playlist"));
+    addRow("Bach's Lunch", playlistSection);
 
     connect(selectionModel(), &QItemSelectionModel::currentChanged,
             this, &SideBar::onSelection);
@@ -22,7 +22,7 @@ void SideBar::onSelection(const QModelIndex &current, const QModelIndex &) {
     if (!item) return;
 
     Section section = static_cast<Section>(item->data().toInt());
-    win->setPlaylistView(section);
+    win->setCompositionView(section);
 }
 
 void SideBar::setCurrentSection(Section section) {

@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     playQueue{new Playlist},
     queueView{new QueueView{this, playQueue}},
     libView{new LibraryView{this, AppData::instance().getLibrary()}},
-    playlistView{nullptr} {
+    compositionView{nullptr} {
 
     auto splitter = new QSplitter{this};
     auto container = new QWidget{this};
@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     auto closeShortcut = new QShortcut{QKeySequence::Close, this};
     connect(closeShortcut, &QShortcut::activated, this, &QWidget::close);
 
-    setPlaylistView(Section::PlayQueue);
+    setCompositionView(Section::PlayQueue);
 }
 
 MainWindow::~MainWindow() {
@@ -66,8 +66,8 @@ PlayerBar *MainWindow::getPlayerBar() const {
     return playerBar;
 }
 
-ICompositionView *MainWindow::getPlaylistView() const {
-    return playlistView;
+ICompositionView *MainWindow::getCompositionView() const {
+    return compositionView;
 }
 
 void MainWindow::setSideBarVisible(bool visible) {
@@ -76,23 +76,23 @@ void MainWindow::setSideBarVisible(bool visible) {
     AppData::instance().setSideBarVisible(visible);
 }
 
-void MainWindow::setPlaylistView(Section section, Playlist *playlist) {
-    if (playlistView) {
-        mainLayout->removeWidget(playlistView);
-        playlistView->hide();
+void MainWindow::setCompositionView(Section section, Playlist *playlist) {
+    if (compositionView) {
+        mainLayout->removeWidget(compositionView);
+        compositionView->hide();
     }
 
     if (section == Section::PlayQueue) {
-        playlistView = queueView;
+        compositionView = queueView;
     } else if (section == Section::Library) {
-        playlistView = libView;
+        compositionView = libView;
     } else {
-        playlistView = nullptr;
+        compositionView = nullptr;
     }
 
-    if (playlistView) {
-        mainLayout->addWidget(playlistView, 1);
-        playlistView->show();
+    if (compositionView) {
+        mainLayout->addWidget(compositionView, 1);
+        compositionView->show();
         sideBar->setCurrentSection(section);
     }
 }
@@ -104,7 +104,7 @@ void MainWindow::addToQueue() {
     for (const auto &url : urls) {
         queueView->addComposition(new Composition{url}, (urls.size() == 1));
     }
-    setPlaylistView(Section::PlayQueue);
+    setCompositionView(Section::PlayQueue);
 }
 
 void MainWindow::importLibrary() {
@@ -115,6 +115,6 @@ void MainWindow::importLibrary() {
     dialog->show();
 
     connect(dialog, &QDialog::finished, this, [this] (int) {
-        setPlaylistView(Section::Library);
+        setCompositionView(Section::Library);
     });
 }

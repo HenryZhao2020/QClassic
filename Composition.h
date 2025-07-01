@@ -12,6 +12,7 @@ class QAudioOutput;
 class Composition : public Identifiable {
     QUrl source;
     QString composer;
+    int playCount;
     QMediaPlayer *player;
     QAudioOutput *audioOutput;
 
@@ -27,7 +28,11 @@ public:
     void setComposer(const QString &composer);
     QString getComposer() const;
 
+    void setPlayCount(int playCount);
+    int getPlayCount() const;
+
     QMediaPlayer *getMediaPlayer() const;
+
     int getDurationMs() const;
     QString getDurationString() const;
 

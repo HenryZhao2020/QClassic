@@ -51,3 +51,13 @@ QList<QStandardItem *> TreeView::addRow(const QStringList &list,
 
     return items;
 }
+
+QList<QStandardItem *> TreeView::getRow(int row) const {
+    QList<QStandardItem*> rowItems;
+    int columnCount{model->columnCount()};
+    for (int col = 0; col < columnCount; ++col) {
+        QStandardItem *item = model->item(row, col);
+        rowItems.append(item);
+    }
+    return rowItems;
+}

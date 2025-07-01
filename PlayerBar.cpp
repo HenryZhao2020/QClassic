@@ -48,9 +48,9 @@ PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
 
     connect(playButton, &QPushButton::clicked, this, &PlayerBar::playOrPause);
     connect(prevButton, &QPushButton::clicked, this,
-            [win] { win->getPlaylistView()->selectPrev(); });
+            [win] { win->getCompositionView()->selectPrev(); });
     connect(nextButton, &QPushButton::clicked, this,
-            [win] { win->getPlaylistView()->selectNext(); });
+            [win] { win->getCompositionView()->selectNext(); });
 
     setEnabled(false);
 }
@@ -70,13 +70,15 @@ void PlayerBar::setCurrentComposition(Composition *composition) {
 
     setEnabled(composition);
     win->setWindowTitle(composition ? composition->getName() : "");
+    initTimeSlider(composition);
+
     if (!composition) return;
 
-    initTimeSlider(composition);
     auto player = currComposition->getMediaPlayer();
     connect(player, &QMediaPlayer::positionChanged, this,
             &PlayerBar::updateTimeSlider);
 
+    win->getCompositionView()->incrementPlayCount(composition);
     play();
 }
 
@@ -124,7 +126,7 @@ void PlayerBar::updateTimeSlider(int ms) {
     if (timeSlider->isSliderDown()) return;
 
     if (ms == currComposition->getDurationMs()) {
-        win->getPlaylistView()->selectNext();
+        win->getCompositionView()->selectNext();
     } else {
         timeSlider->setValue(ms);
         timeLabel->setText(Composition::millisecToString(ms));

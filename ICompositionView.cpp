@@ -8,9 +8,10 @@
 #include <QMediaPlayer>
 #include <QTimer>
 #include <QMenu>
+#include <QMessageBox>
 
 ICompositionView::ICompositionView(MainWindow *win, ICompositionList *list) :
-    TreeView{win, {tr("Title"), tr("Composer"), tr("Duration")}},
+    TreeView{win, {tr("Title"), tr("Composer"), tr("Duration"), tr("Play Count")}},
     win{win}, list{list}, playingRowIndex{0} {
 
     connect(this, &ICompositionView::clicked, this,
@@ -27,13 +28,15 @@ ICompositionView::~ICompositionView() {}
 
 QList<QStandardItem *> ICompositionView::addRow(Composition *composition) {
     Q_ASSERT(composition);
-    auto row = TreeView::addRow({composition->getName(),
-                                 composition->getComposer(),
-                                 composition->getDurationString()});
+    auto row = TreeView::addRow({
+        composition->getName(),
+        composition->getComposer(),
+        composition->getDurationString(),
+        QString::number(composition->getPlayCount()),
+    });
 
-    row[Column::Title]->setData(
-        QVariant::fromValue(static_cast<void *>(composition)),
-        Qt::UserRole);
+    void *data = composition;
+    row[Column::Title]->setData(QVariant::fromValue(data), Qt::UserRole);
 
     connect(composition->getMediaPlayer(), &QMediaPlayer::mediaStatusChanged,
             this, [this, row, composition] {
@@ -45,26 +48,36 @@ QList<QStandardItem *> ICompositionView::addRow(Composition *composition) {
     return row;
 }
 
-void ICompositionView::removeRow(const QModelIndex &index) {
+void ICompositionView::removeRow(int row) {
     win->getPlayerBar()->setCurrentComposition(nullptr);
-    if (list->removeComposition(getCompositionAt(index))) {
-        getModel()->removeRow(index.row());
+    if (list->removeComposition(getCompositionAtRow(row))) {
+        getModel()->removeRow(row);
     }
 
     auto newIndex = currentIndex();
     if (newIndex.isValid()) {
-        win->getPlayerBar()->setCurrentComposition(getCompositionAt(newIndex));
+        win->getPlayerBar()->setCurrentComposition(getCompositionAtRow(newIndex.row()));
     }
 }
 
-Composition *ICompositionView::getCompositionAt(const QModelIndex &index) {
-    auto item = getModel()->index(index.row(), Column::Title);
+QList<QStandardItem *> ICompositionView::getRow(Composition *composition) {
+    int rowCount{getModel()->rowCount()};
+    for (int row = 0; row < rowCount; ++row) {
+        if (getCompositionAtRow(row) == composition) {
+            return TreeView::getRow(row);
+        }
+    }
+    return {};
+}
+
+Composition *ICompositionView::getCompositionAtRow(int row) {
+    auto item = getModel()->index(row, Column::Title);
     void *data = item.data(Qt::UserRole).value<void *>();
     return static_cast<Composition *>(data);
 }
 
 void ICompositionView::onSingleClick(const QModelIndex &index) {
-    selectedComposition = getCompositionAt(index);
+    selectedComposition = getCompositionAtRow(index.row());
 }
 
 void ICompositionView::onDoubleClick(const QModelIndex &modelIndex) {
@@ -86,13 +99,13 @@ void ICompositionView::onContextMenu(const QPoint &pos) {
     if (selectedAction == editAction) {
         // handle open
     } else if (selectedAction == deleteAction) {
-        removeRow(index);
+        removeRow(index.row());
     }
 }
 
 void ICompositionView::setCurrentIndex(const QModelIndex &index) {
     playingRowIndex = index.row();
-    auto composition = getCompositionAt(index);
+    auto composition = getCompositionAtRow(index.row());
     win->getPlayerBar()->setCurrentComposition(composition);
     TreeView::setCurrentIndex(index);
 }
@@ -100,11 +113,20 @@ void ICompositionView::setCurrentIndex(const QModelIndex &index) {
 void ICompositionView::addComposition(Composition *composition, bool select) {
     Q_ASSERT(composition);
     list->addComposition(composition);
+
     auto row = addRow(composition);
 
     QTimer::singleShot(0, this, [this] { setFocus(); });
     QModelIndex index{getModel()->indexFromItem(row[Column::Title])};
     if (select) setCurrentIndex(index);
+}
+
+void ICompositionView::incrementPlayCount(Composition *composition) {
+    int newCount{composition->getPlayCount() + 1};
+    composition->setPlayCount(newCount);
+
+    auto row = getRow(composition);
+    row[Column::PlayCount]->setText(QString::number(newCount));
 }
 
 void ICompositionView::selectPrev() {

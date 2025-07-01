@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QFileInfo>
 #include <QShortcut>
+#include <QMessageBox>
 
 ImportDialog::ImportDialog(LibraryView *libView, const QUrl &source) :
     QDialog{libView}, libView{libView}, source{source},
@@ -60,9 +61,10 @@ void ImportDialog::import() {
     auto lib = AppData::instance().getLibrary();
     auto composition = new Composition{source, title, composer};
     if (!lib->containsComposition(composition)) {
-        lib->addComposition(composition);
         libView->addComposition(composition, true);
     } else {
+        QMessageBox::critical(this, "Duplicate Item",
+                              "Composition already exists in the library!");
         delete composition;
     }
 

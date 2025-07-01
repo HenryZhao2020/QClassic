@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow {
     MenuBar *menuBar;
     SideBar *sideBar;
     PlayerBar *playerBar;
-    ICompositionView *playlistView;
+    ICompositionView *compositionView;
 
     Playlist *playQueue;
     QueueView *queueView;
@@ -33,10 +33,10 @@ public:
     MenuBar *getMenuBar() const;
     SideBar *getSideBar() const;
     PlayerBar *getPlayerBar() const;
-    ICompositionView *getPlaylistView() const;
+    ICompositionView *getCompositionView() const;
 
     void setSideBarVisible(bool visible);
-    void setPlaylistView(Section section, Playlist *playlist = nullptr);
+    void setCompositionView(Section section, Playlist *playlist = nullptr);
 
     void addToQueue();
     void importLibrary();

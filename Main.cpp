@@ -8,7 +8,8 @@
 
 int main(int argc, char *argv[]) {
     QApplication app{argc, argv};
-    QDir::setCurrent(QStandardPaths::writableLocation(QStandardPaths::MusicLocation));
+    QDir::setCurrent(QStandardPaths::writableLocation(
+        QStandardPaths::MusicLocation));
 
     QApplication::connect(&app, &QApplication::aboutToQuit, &app,
                           [] { AppData::instance().save(); });

@@ -7,13 +7,6 @@ Library::~Library() {
     }
 }
 
-void Library::addComposition(Composition *composition) {
-    Q_ASSERT(composition);
-    if (!containsComposition(composition)) {
-        ICompositionList::addComposition(composition);
-    }
-}
-
 bool Library::removeComposition(Composition *composition) {
     Q_ASSERT(composition);
     bool returnVal{ICompositionList::removeComposition(composition)};

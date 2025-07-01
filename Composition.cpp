@@ -36,6 +36,14 @@ QString Composition::getComposer() const {
     return composer;
 }
 
+void Composition::setPlayCount(int playCount) {
+    this->playCount = playCount;
+}
+
+int Composition::getPlayCount() const {
+    return playCount;
+}
+
 QMediaPlayer *Composition::getMediaPlayer() const {
     return player;
 }
@@ -51,6 +59,5 @@ QString Composition::getDurationString() const {
 bool Composition::operator==(const Composition &other) {
     return (getName() == other.getName()) &&
            (getComposer() == other.getComposer() &&
-           (getDurationMs() == other.getDurationMs()) &&
            (getSource() == other.getSource()));
 }

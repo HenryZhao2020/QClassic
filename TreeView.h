@@ -23,4 +23,5 @@ public:
                           QStandardItem *section = nullptr);
     QList<QStandardItem *> addRow(const QStringList &list,
                                   QStandardItem *section = nullptr);
+    QList<QStandardItem *> getRow(int row) const;
 };

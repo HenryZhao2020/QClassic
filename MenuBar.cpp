@@ -52,13 +52,13 @@ MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {
     prevAction = new QAction{tr("Previous"), this};
     prevAction->setShortcut(Qt::Key_MediaPrevious);
     connect(prevAction, &QAction::triggered, this,
-            [win] { win->getPlaylistView()->selectPrev(); });
+            [win] { win->getCompositionView()->selectPrev(); });
     ctrlMenu->addAction(prevAction);
 
     nextAction = new QAction{tr("Next"), this};
     nextAction->setShortcut(Qt::Key_MediaNext);
     connect(nextAction, &QAction::triggered, this,
-            [win] { win->getPlaylistView()->selectNext(); });
+            [win] { win->getCompositionView()->selectNext(); });
     ctrlMenu->addAction(nextAction);
 
     repeatOffAction = new QAction{tr("Off"), this};

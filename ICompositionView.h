@@ -15,11 +15,12 @@ class ICompositionView : public TreeView {
     int playingRowIndex;
 
 protected:
-    enum Column { Title = 0, Composer, Duration };
+    enum Column { Title = 0, Composer, Duration, PlayCount };
 
     QList<QStandardItem *> addRow(Composition *composition);
-    void removeRow(const QModelIndex &index);
-    Composition *getCompositionAt(const QModelIndex &index);
+    void removeRow(int row);
+    QList<QStandardItem *> getRow(Composition *composition);
+    Composition *getCompositionAtRow(int row);
 
     void onSingleClick(const QModelIndex &index);
     void onDoubleClick(const QModelIndex &index);
@@ -31,6 +32,7 @@ public:
 
     void setCurrentIndex(const QModelIndex &index);
     void addComposition(Composition *composition, bool select = false);
+    void incrementPlayCount(Composition *composition);
     void selectPrev();
     void selectNext();
 };

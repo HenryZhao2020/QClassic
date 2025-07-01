@@ -19,4 +19,5 @@ public:
 
     int size() const;
     bool isEmpty() const;
+    Composition *operator[](qsizetype i);
 };
