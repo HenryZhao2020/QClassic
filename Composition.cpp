@@ -9,8 +9,8 @@ QString Composition::millisecToString(int ms) {
 }
 
 Composition::Composition(const QUrl &source, const QString &name,
-                         const QString &composer) :
-    LibraryItem{name.isEmpty() ? source.fileName() : name},
+                         const QString &composer, const QUuid &id) :
+    LibraryItem{name.isEmpty() ? source.fileName() : name, nullptr, id},
     source{source}, composer{composer},
     player{new QMediaPlayer}, audioOutput{new QAudioOutput} {
 
@@ -21,6 +21,10 @@ Composition::Composition(const QUrl &source, const QString &name,
 Composition::~Composition() {
     delete audioOutput;
     delete player;
+}
+
+QUrl Composition::getSource() const {
+    return source;
 }
 
 void Composition::setComposer(const QString &composer) {
@@ -41,4 +45,11 @@ int Composition::getDurationMs() const {
 
 QString Composition::getDurationString() const {
     return millisecToString(getDurationMs());
+}
+
+bool Composition::operator==(const Composition &other) {
+    return (getName() == other.getName()) &&
+           (getComposer() == other.getComposer() &&
+           (getDurationMs() == other.getDurationMs()) &&
+           (getSource() == other.getSource()));
 }

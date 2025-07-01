@@ -2,10 +2,11 @@
 #include "MenuBar.h"
 #include "SideBar.h"
 #include "PlayerBar.h"
-#include "PlaylistView.h"
+#include "ICompositionView.h"
 #include "QueueView.h"
 #include "LibraryView.h"
 #include "ImportDialog.h"
+#include "Library.h"
 #include "Playlist.h"
 #include "Composition.h"
 #include "AppData.h"
@@ -63,7 +64,7 @@ PlayerBar *MainWindow::getPlayerBar() const {
     return playerBar;
 }
 
-PlaylistView *MainWindow::getPlaylistView() const {
+ICompositionView *MainWindow::getPlaylistView() const {
     return playlistView;
 }
 
@@ -92,13 +93,8 @@ void MainWindow::addToQueue() {
     const QList<QUrl> urls{QFileDialog::getOpenFileUrls(this)};
     if (urls.isEmpty()) return;
 
-    QModelIndex index;
     for (const auto &url : urls) {
-        index = queueView->addComposition(new Composition{url});
-    }
-
-    if (urls.size() == 1) {
-        queueView->setCurrentIndex(index);
+        queueView->addComposition(new Composition{url}, (urls.size() == 1));
     }
     setPlaylistView(Section::PlayQueue);
 }
@@ -112,7 +108,6 @@ void MainWindow::importLibrary() {
 
     connect(dialog, &QDialog::finished, this, [this] (int) {
         setPlaylistView(Section::Library);
-        libView->setCurrentIndex(libView->currentIndex());
     });
 }
 
@@ -120,4 +115,11 @@ void MainWindow::setSideBarVisible(bool visible) {
     menuBar->showSideBarAction->setChecked(visible);
     sideBar->setVisible(visible);
     AppData::instance().setSideBarVisible(visible);
+}
+
+void MainWindow::loadData() {
+    auto lib = AppData::instance().getLibrary();
+    for (auto composition : lib->getCompositions()) {
+        libView->addComposition(composition);
+    }
 }

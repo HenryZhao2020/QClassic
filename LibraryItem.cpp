@@ -1,20 +1,9 @@
 #include "LibraryItem.h"
 
-#include <QUuid>
-
-LibraryItem::LibraryItem(const QString &name, Library *lib) :
-    id{QUuid::createUuid().toString(QUuid::WithoutBraces)},
-    name{name}, lib{lib} {}
+LibraryItem::LibraryItem(const QString &name, Library *lib, const QUuid &id)
+    : name{name}, lib{lib}, id{id} {}
 
 LibraryItem::~LibraryItem() {}
-
-Library *LibraryItem::getLibrary() const {
-    return lib;
-}
-
-QString LibraryItem::getId() const {
-    return id;
-}
 
 void LibraryItem::setName(const QString &name) {
     this->name = name;
@@ -22,4 +11,12 @@ void LibraryItem::setName(const QString &name) {
 
 QString LibraryItem::getName() const {
     return name;
+}
+
+Library *LibraryItem::getLibrary() const {
+    return lib;
+}
+
+QUuid LibraryItem::getId() const {
+    return id;
 }

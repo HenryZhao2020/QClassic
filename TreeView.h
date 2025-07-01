@@ -11,7 +11,6 @@ class TreeView : public QTreeView {
     Q_OBJECT
 
     QStandardItemModel *model;
-    int columnCount;
 
 protected:
     QStandardItemModel *getModel() const;

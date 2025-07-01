@@ -6,7 +6,7 @@ class QVBoxLayout;
 class MenuBar;
 class SideBar;
 class PlayerBar;
-class PlaylistView;
+class ICompositionView;
 class QueueView;
 class LibraryView;
 
@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow {
     MenuBar *menuBar;
     SideBar *sideBar;
     PlayerBar *playerBar;
-    PlaylistView *playlistView;
+    ICompositionView *playlistView;
 
     Playlist *playQueue;
     QueueView *queueView;
@@ -33,10 +33,11 @@ public:
     MenuBar *getMenuBar() const;
     SideBar *getSideBar() const;
     PlayerBar *getPlayerBar() const;
-    PlaylistView *getPlaylistView() const;
+    ICompositionView *getPlaylistView() const;
     void setPlaylistView(Section section, Playlist *playlist = nullptr);
 
     void addToQueue();
     void importLibrary();
     void setSideBarVisible(bool visible);
+    void loadData();
 };

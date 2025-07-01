@@ -1,7 +1,7 @@
 #include "MenuBar.h"
 #include "MainWindow.h"
 #include "PlayerBar.h"
-#include "PlaylistView.h"
+#include "ICompositionView.h"
 #include "AppData.h"
 
 MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {

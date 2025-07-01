@@ -4,19 +4,15 @@
 #include <QStandardItemModel>
 #include <QHeaderView>
 
-static constexpr int DEFAULT_COLUMN_COUNT{1};
-
 TreeView::TreeView(MainWindow *win, const QStringList &headers)
-    : QTreeView{win}, model{new QStandardItemModel{this}},
-      columnCount{headers.isEmpty() ? DEFAULT_COLUMN_COUNT
-                  : static_cast<int>(headers.size())} {
+    : QTreeView{win}, model{new QStandardItemModel{this}} {
 
     model->setHorizontalHeaderLabels(headers);
     setModel(model);
 
     header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    header()->setStretchLastSection(columnCount == DEFAULT_COLUMN_COUNT);
-    header()->setVisible(columnCount != DEFAULT_COLUMN_COUNT);
+    header()->setStretchLastSection(headers.isEmpty());
+    header()->setVisible(!headers.isEmpty());
 }
 
 QStandardItemModel *TreeView::getModel() const {

@@ -31,7 +31,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MenuBar.h MenuBar.cpp
         QClassic.qrc
         Playlist.h Playlist.cpp
-        PlaylistView.h PlaylistView.cpp
+        ICompositionView.h ICompositionView.cpp
         TreeView.h TreeView.cpp
 
         Styles.qss

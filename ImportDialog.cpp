@@ -1,6 +1,8 @@
 #include "ImportDialog.h"
 #include "LibraryView.h"
 #include "Composition.h"
+#include "AppData.h"
+#include "Library.h"
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -55,8 +57,14 @@ void ImportDialog::import() {
     QString title{titleField->text().trimmed()};
     QString composer{composerBox->currentText().trimmed()};
 
+    auto lib = AppData::instance().getLibrary();
     auto composition = new Composition{source, title, composer};
-    libView->addComposition(composition);
+    if (!lib->containsComposition(composition)) {
+        lib->addComposition(composition);
+        libView->addComposition(composition, true);
+    } else {
+        delete composition;
+    }
 
     close();
 }

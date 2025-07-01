@@ -1,23 +1,23 @@
 #pragma once
 
 #include <QString>
+#include <QUuid>
 
 class Library;
 
 class LibraryItem {
-    QString id;
     QString name;
     Library *lib;
-
-protected:
-    Library *getLibrary() const;
+    QUuid id;
 
 public:
-    LibraryItem(const QString &name, Library *lib = nullptr);
+    LibraryItem(const QString &name, Library *lib = nullptr,
+                const QUuid &id = QUuid::createUuid());
     virtual ~LibraryItem() = 0;
-
-    QString getId() const;
 
     void setName(const QString &name);
     QString getName() const;
+
+    Library *getLibrary() const;
+    QUuid getId() const;
 };

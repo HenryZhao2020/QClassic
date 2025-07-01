@@ -1,10 +1,10 @@
 #pragma once
 
-#include "PlaylistView.h"
+#include "ICompositionView.h"
 
 class Playlist;
 
-class QueueView : public PlaylistView {
+class QueueView : public ICompositionView {
     Q_OBJECT
 
 protected:

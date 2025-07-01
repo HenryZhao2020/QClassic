@@ -1,7 +1,7 @@
 #include "PlayerBar.h"
 #include "MainWindow.h"
 #include "MenuBar.h"
-#include "PlaylistView.h"
+#include "ICompositionView.h"
 #include "Composition.h"
 
 #include <QHBoxLayout>

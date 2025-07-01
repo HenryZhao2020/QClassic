@@ -5,7 +5,7 @@
 #include "Composition.h"
 
 LibraryView::LibraryView(MainWindow *win, Library *lib) :
-    PlaylistView{win, Playlist::createPlaylist(lib->getCompositions()),
+    ICompositionView{win, Playlist::createPlaylist(lib->getCompositions()),
                  {tr("Title"), tr("Composer"), tr("Duration")}},
     win{win}, lib{lib} {}
 

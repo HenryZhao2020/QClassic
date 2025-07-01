@@ -9,18 +9,25 @@ Library::~Library() {
     }
 }
 
-bool Library::addComposition(Composition *composition) {
+void Library::addComposition(Composition *composition) {
     Q_ASSERT(composition);
-    if (!compositions.contains(composition)) {
-        compositions.append(composition);
-        return true;
-    }
-    return false;
+    compositions.append(composition);
 }
 
-bool Library::removeComposition(Composition *composition) {
+void Library::removeComposition(Composition *composition) {
     Q_ASSERT(composition);
-    return compositions.removeOne(composition);
+    compositions.removeOne(composition);
+    delete composition;
+}
+
+bool Library::containsComposition(Composition *composition) {
+    Q_ASSERT(composition);
+    for (auto c : std::as_const(compositions)) {
+        if (*c == *composition) {
+            return true;
+        }
+    }
+    return false;
 }
 
 const QList<Composition *> &Library::getCompositions() const {
