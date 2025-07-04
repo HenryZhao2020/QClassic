@@ -5,7 +5,7 @@
 #include <QHeaderView>
 
 TreeView::TreeView(MainWindow *win, const QStringList &headers)
-    : QTreeView{win}, model{new QStandardItemModel{this}} {
+    : QTreeView{win->centralWidget()}, model{new QStandardItemModel{this}} {
 
     model->setHorizontalHeaderLabels(headers);
     setModel(model);

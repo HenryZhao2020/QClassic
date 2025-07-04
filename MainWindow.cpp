@@ -38,16 +38,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     mainLayout->setSpacing(0);
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
 
+    setSideBarVisible(AppData::instance().isSideBarVisible());
+    setCompositionView(Section::PlayQueue);
     resize(900, 650);
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
                                     screen()->availableGeometry()));
-    setSideBarVisible(AppData::instance().isSideBarVisible());
 
     // Use <Cmd+W> to close window in macOS
     auto closeShortcut = new QShortcut{QKeySequence::Close, this};
     connect(closeShortcut, &QShortcut::activated, this, &QWidget::close);
-
-    setCompositionView(Section::PlayQueue);
 }
 
 MainWindow::~MainWindow() {
