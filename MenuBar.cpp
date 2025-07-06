@@ -1,99 +1,104 @@
 #include "MenuBar.h"
 #include "MainWindow.h"
+#include "SideBar.h"
+#include "IPieceView.h"
 #include "PlayerBar.h"
-#include "ICompositionView.h"
+#include "Playback.h"
 #include "AppData.h"
 
-MenuBar::MenuBar(MainWindow *win) : QMenuBar{win} {
-    auto fileMenu = addMenu(tr("File"));
-    auto editMenu = addMenu(tr("Edit"));
-    auto viewMenu = addMenu(tr("View"));
-    auto ctrlMenu = addMenu(tr("Controls"));
+#include <QActionGroup>
 
-    auto openAction = new QAction{tr("Open Music Files..."), this};
+MenuBar::MenuBar(MainWindow *win) : QMenuBar{win}, win{win} {
+    makeFileMenu();
+    makeEditMenu();
+    makeViewMenu();
+    makeCtrlMenu();
+}
+
+void MenuBar::makeFileMenu() {
+    auto openAction = new QAction{tr("Open Files..."), this};
     openAction->setShortcut(QKeySequence::Open);
     connect(openAction, &QAction::triggered, win, &MainWindow::addToQueue);
-    fileMenu->addAction(openAction);
 
-    auto importAction = new QAction{tr("Import To Library"), this};
+    auto importAction = new QAction{tr("Import to Library"), this};
+    importAction->setShortcut(Qt::CTRL | Qt::Key_I);
     connect(importAction, &QAction::triggered, win,
             &MainWindow::importLibrary);
-    fileMenu->addAction(importAction);
 
     auto exitAction = new QAction(tr("Exit"), this);
     exitAction->setShortcut(QKeySequence::Quit);
     connect(exitAction, &QAction::triggered, win, &MainWindow::close);
+
+    auto fileMenu = addMenu(tr("File"));
+    fileMenu->addAction(openAction);
+    fileMenu->addAction(importAction);
     fileMenu->addAction(exitAction);
-
-    auto cutAction = new QAction{tr("Cut"), this};
-    cutAction->setShortcut(QKeySequence::Cut);
-    editMenu->addAction(cutAction);
-
-    auto copyAction = new QAction{tr("Copy"), this};
-    copyAction->setShortcut(QKeySequence::Copy);
-    editMenu->addAction(copyAction);
-
-    auto pasteAction = new QAction{tr("Paste"), this};
-    pasteAction->setShortcut(QKeySequence::Paste);
-    editMenu->addAction(pasteAction);
-
-    showSideBarAction = new QAction{tr("Show Side Bar"), this};
-    showSideBarAction->setCheckable(true);
-    connect(showSideBarAction, &QAction::triggered,
-            win, &MainWindow::setSideBarVisible);
-    viewMenu->addAction(showSideBarAction);
-
-    playAction = new QAction{tr("Play"), this};
-    playAction->setShortcut(Qt::Key_Space);
-    connect(playAction, &QAction::triggered, this,
-            [win] { win->getPlayerBar()->playOrPause(); });
-    ctrlMenu->addAction(playAction);
-
-    prevAction = new QAction{tr("Previous"), this};
-    prevAction->setShortcut(Qt::Key_MediaPrevious);
-    connect(prevAction, &QAction::triggered, this,
-            [win] { win->getCompositionView()->selectPrev(); });
-    ctrlMenu->addAction(prevAction);
-
-    nextAction = new QAction{tr("Next"), this};
-    nextAction->setShortcut(Qt::Key_MediaNext);
-    connect(nextAction, &QAction::triggered, this,
-            [win] { win->getCompositionView()->selectNext(); });
-    ctrlMenu->addAction(nextAction);
-
-    repeatOffAction = new QAction{tr("Off"), this};
-    repeatOffAction->setCheckable(true);
-    connect(repeatOffAction, &QAction::triggered, this, [this] {
-        setRepeat(Repeat::Off);
-    });
-
-    repeatAllAction = new QAction{tr("All"), this};
-    repeatAllAction->setCheckable(true);
-    connect(repeatAllAction, &QAction::triggered, this, [this] {
-        setRepeat(Repeat::All);
-    });
-
-    repeatOneAction = new QAction{tr("One"), this};
-    repeatOneAction->setCheckable(true);
-    connect(repeatOneAction, &QAction::triggered, this, [this] {
-        setRepeat(Repeat::One);
-    });
-
-    auto repeatMenu = ctrlMenu->addMenu(tr("Repeat"));
-    repeatMenu->addAction(repeatOffAction);
-    repeatMenu->addAction(repeatAllAction);
-    repeatMenu->addAction(repeatOneAction);
-    setRepeat(AppData::instance().getRepeat());
-
-    addMenu(fileMenu);
-    addMenu(editMenu);
-    addMenu(viewMenu);
-    addMenu(ctrlMenu);
 }
 
-void MenuBar::setRepeat(Repeat repeat) {
-    AppData::instance().setRepeat(repeat);
-    repeatOffAction->setChecked(repeat == Repeat::Off);
-    repeatAllAction->setChecked(repeat == Repeat::All);
-    repeatOneAction->setChecked(repeat == Repeat::One);
+void MenuBar::makeEditMenu() {}
+
+void MenuBar::makeViewMenu() {
+    auto sideBarAction = new QAction{tr("Show Side Bar"), this};
+    sideBarAction->setCheckable(true);
+    connect(sideBarAction, &QAction::triggered, this, [this] (bool state) {
+        win->getSideBar()->setVisible(state);
+    });
+
+    auto viewMenu = addMenu(tr("View"));
+    viewMenu->addAction(sideBarAction);
+
+    connect(viewMenu, &QMenu::aboutToShow, this, [=] {
+        sideBarAction->setChecked(win->getSideBar()->isVisible());
+    });
+}
+
+void MenuBar::makeCtrlMenu() {
+    auto playAction = new QAction{tr("Play"), this};
+    playAction->setShortcut(Qt::Key_Space);
+    connect(playAction, &QAction::triggered, this, [this] {
+        win->getPlayerBar()->playOrPause();
+    });
+
+    auto prevAction = new QAction{tr("Previous"), this};
+    prevAction->setShortcut(Qt::Key_MediaPrevious);
+    connect(prevAction, &QAction::triggered, this, [this] {
+        win->getPieceView()->selectPrev();
+    });
+
+    auto nextAction = new QAction{tr("Next"), this};
+    nextAction->setShortcut(Qt::Key_MediaNext);
+    connect(nextAction, &QAction::triggered, this, [this] {
+        win->getPieceView()->selectNext();
+    });
+
+    repeatMenu = new QMenu{tr("Repeat"), this};
+    repeatGroup = new QActionGroup{repeatMenu};
+    repeatGroup->setExclusive(true);
+    addRepeatMode(tr("Off"), Repeat::Off);
+    addRepeatMode(tr("All"), Repeat::All);
+    addRepeatMode(tr("One"), Repeat::One);
+
+    auto ctrlMenu = addMenu(tr("Controls"));
+    ctrlMenu->addAction(playAction);
+    ctrlMenu->addAction(prevAction);
+    ctrlMenu->addAction(nextAction);
+    ctrlMenu->addSeparator();
+    ctrlMenu->addMenu(repeatMenu);
+
+    connect(ctrlMenu, &QMenu::aboutToShow, this, [=] {
+        const bool enabled = win->getPlayerBar()->getCurrentPiece();
+        playAction->setEnabled(enabled);
+        prevAction->setEnabled(enabled);
+        nextAction->setEnabled(enabled);
+    });
+}
+
+void MenuBar::addRepeatMode(const QString &text, Repeat repeat) {
+    auto repeatAction = new QAction{text, repeatGroup};
+    repeatAction->setCheckable(true);
+    repeatAction->setChecked(AppData::instance().getRepeat() == repeat);
+    connect(repeatAction, &QAction::triggered, this, [=] {
+        AppData::instance().setRepeat(repeat);
+    });
+    repeatMenu->addAction(repeatAction);
 }

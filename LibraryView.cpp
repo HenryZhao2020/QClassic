@@ -3,9 +3,9 @@
 #include "Library.h"
 
 LibraryView::LibraryView(MainWindow *win, Library *lib) :
-    ICompositionView{win, lib} {
+    IPieceView{win, lib} {
 
-    for (auto c : lib->getCompositions()) {
-        addRow(c);
+    for (const auto &piece : lib->getPieces()) {
+        addRow(piece);
     }
 }

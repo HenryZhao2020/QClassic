@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ICompositionView.h"
+#include "IPieceView.h"
 
 class Playlist;
 
-class QueueView : public ICompositionView {
+class QueueView : public IPieceView {
     Q_OBJECT
 
 public:

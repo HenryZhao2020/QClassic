@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ICompositionView.h"
+#include "IPieceView.h"
 
 class Library;
 
-class LibraryView : public ICompositionView {
+class LibraryView : public IPieceView {
     Q_OBJECT
 
 public:

@@ -22,7 +22,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(QClassic
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        Composition.h Composition.cpp
+        Piece.h Piece.cpp
 
         Library.h Library.cpp
         PlayerBar.h PlayerBar.cpp
@@ -31,7 +31,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MenuBar.h MenuBar.cpp
         QClassic.qrc
         Playlist.h Playlist.cpp
-        ICompositionView.h ICompositionView.cpp
+        IPieceView.h IPieceView.cpp
         TreeView.h TreeView.cpp
 
         Styles.qss
@@ -39,8 +39,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Identifiable.h Identifiable.cpp
         LibraryView.h LibraryView.cpp
         QueueView.h QueueView.cpp
-        ImportDialog.h ImportDialog.cpp
-        ICompositionList.h ICompositionList.cpp
+
+        IPieceList.h IPieceList.cpp
+        PieceEditor.h PieceEditor.cpp
+        Playback.h Playback.cpp
+
 
 
 

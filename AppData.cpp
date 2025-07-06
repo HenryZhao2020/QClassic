@@ -1,6 +1,7 @@
 #include "AppData.h"
 #include "Library.h"
-#include "Composition.h"
+#include "Piece.h"
+#include "Playback.h"
 
 #include <QFile>
 #include <QDataStream>
@@ -9,7 +10,7 @@
 AppData::AppData() :
     lib{new Library},
     repeat{Repeat::Off},
-    sideBarVisible{true} {}
+    volume{Volume::DefaultVolume} {}
 
 AppData::~AppData() {
     delete lib;
@@ -27,26 +28,31 @@ Repeat AppData::getRepeat() const {
     return repeat;
 }
 
-void AppData::setSideBarVisible(bool visible) {
-    sideBarVisible = visible;
+void AppData::setVolume(int volume) {
+    Q_ASSERT(Volume::MinVolume <= volume && volume <= Volume::MaxVolume);
+    this->volume = volume;
 }
 
-bool AppData::isSideBarVisible() const {
-    return sideBarVisible;
+int AppData::getVolume() const {
+    return volume;
 }
 
-void AppData::save() {
+void AppData::save() const {
     QFile file{appDataFilePath()};
     if (!file.open(QFile::WriteOnly)) return;
 
     QDataStream out{&file};
-    out << lib->getCompositions().size();
-    for (auto c : lib->getCompositions()) {
-        out << c->getId() << c->getSource()
-            << c->getName() << c->getComposer();
+    const int numPieces{lib->size()};
+    out << numPieces;
+    for (auto piece : lib->getPieces()) {
+        out << piece->getId()
+            << piece->getName()
+            << piece->getSource()
+            << piece->getComposer()
+            << piece->getPlayCount();
     }
     out << repeat;
-    out << sideBarVisible;
+    out << volume;
 }
 
 bool AppData::load() {
@@ -54,23 +60,25 @@ bool AppData::load() {
     if (!file.open(QFile::ReadOnly)) return false;
 
     QDataStream in{&file};
-    qsizetype numCompositions{0};
-    in >> numCompositions;
+    int numPieces{0};
+    in >> numPieces;
 
-    for (qsizetype i = 0; i < numCompositions; ++i) {
+    for (int i = 0; i < numPieces; ++i) {
         QUuid id;
+        QString name;
         QUrl source;
-        QString name, composer;
-        in >> id >> source >> name >> composer;
+        QString composer;
+        int playCount;
+        in >> id >> name >> source >> composer >> playCount;
 
-        auto composition = new Composition{source, name, composer};
-        composition->setId(id);
-        lib->addComposition(composition);
+        auto piece = new Piece{source, name, composer};
+        piece->setId(id);
+        piece->setPlayCount(playCount);
+        lib->addPiece(piece);
     }
 
     in >> repeat;
-    in >> sideBarVisible;
-
+    in >> volume;
     return true;
 }
 

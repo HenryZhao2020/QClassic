@@ -3,13 +3,13 @@
 #include <QString>
 
 class Library;
-
-enum class Repeat { Off, All, One };
+class Piece;
+enum class Repeat;
 
 class AppData {
     Library *lib;
     Repeat repeat;
-    bool sideBarVisible;
+    int volume;
 
     static QString appDataFilePath();
 
@@ -25,9 +25,9 @@ public:
     void setRepeat(Repeat repeat);
     Repeat getRepeat() const;
 
-    void setSideBarVisible(bool visible);
-    bool isSideBarVisible() const;
+    void setVolume(int volume);
+    int getVolume() const;
 
-    void save();
+    void save() const;
     bool load();
 };

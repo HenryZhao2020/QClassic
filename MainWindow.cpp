@@ -2,13 +2,13 @@
 #include "MenuBar.h"
 #include "SideBar.h"
 #include "PlayerBar.h"
-#include "ICompositionView.h"
+#include "IPieceView.h"
 #include "QueueView.h"
 #include "LibraryView.h"
-#include "ImportDialog.h"
+#include "PieceEditor.h"
 #include "Library.h"
 #include "Playlist.h"
-#include "Composition.h"
+#include "Piece.h"
 #include "AppData.h"
 
 #include <QVBoxLayout>
@@ -16,6 +16,7 @@
 #include <QSplitter>
 #include <QShortcut>
 #include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     menuBar{new MenuBar{this}},
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     playQueue{new Playlist},
     queueView{new QueueView{this, playQueue}},
     libView{new LibraryView{this, AppData::instance().getLibrary()}},
-    compositionView{nullptr} {
+    pieceView{nullptr} {
 
     auto splitter = new QSplitter{this};
     auto container = new QWidget{this};
@@ -38,11 +39,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     mainLayout->setSpacing(0);
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
 
-    setSideBarVisible(AppData::instance().isSideBarVisible());
-    setCompositionView(Section::PlayQueue);
+    const bool libEmpty{AppData::instance().getLibrary()->isEmpty()};
+    setPieceView(libEmpty ? Section::PlayQueue : Section::Library);
+
     resize(900, 650);
-    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
-                                    screen()->availableGeometry()));
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter,
+                                    size(), screen()->availableGeometry()));
 
     // Use <Cmd+W> to close window in macOS
     auto closeShortcut = new QShortcut{QKeySequence::Close, this};
@@ -65,33 +67,27 @@ PlayerBar *MainWindow::getPlayerBar() const {
     return playerBar;
 }
 
-ICompositionView *MainWindow::getCompositionView() const {
-    return compositionView;
+IPieceView *MainWindow::getPieceView() const {
+    return pieceView;
 }
 
-void MainWindow::setSideBarVisible(bool visible) {
-    menuBar->showSideBarAction->setChecked(visible);
-    sideBar->setVisible(visible);
-    AppData::instance().setSideBarVisible(visible);
-}
-
-void MainWindow::setCompositionView(Section section, Playlist *playlist) {
-    if (compositionView) {
-        mainLayout->removeWidget(compositionView);
-        compositionView->hide();
+void MainWindow::setPieceView(Section section, Playlist *playlist) {
+    if (pieceView) {
+        mainLayout->removeWidget(pieceView);
+        pieceView->hide();
     }
 
     if (section == Section::PlayQueue) {
-        compositionView = queueView;
+        pieceView = queueView;
     } else if (section == Section::Library) {
-        compositionView = libView;
+        pieceView = libView;
     } else {
-        compositionView = nullptr;
+        pieceView = nullptr;
     }
 
-    if (compositionView) {
-        mainLayout->addWidget(compositionView, 1);
-        compositionView->show();
+    if (pieceView) {
+        mainLayout->addWidget(pieceView, 1);
+        pieceView->show();
         sideBar->setCurrentSection(section);
     }
 }
@@ -100,20 +96,25 @@ void MainWindow::addToQueue() {
     const QList<QUrl> urls{QFileDialog::getOpenFileUrls(this)};
     if (urls.isEmpty()) return;
 
+    setPieceView(Section::PlayQueue);
     for (const auto &url : urls) {
-        queueView->addComposition(new Composition{url}, (urls.size() == 1));
+        queueView->addPiece(new Piece{url}, (urls.size() == 1));
     }
-    setCompositionView(Section::PlayQueue);
 }
 
 void MainWindow::importLibrary() {
-    QUrl url{QFileDialog::getOpenFileUrl(this)};
+    const QUrl url{QFileDialog::getOpenFileUrl(this)};
     if (url.isEmpty()) return;
 
-    auto dialog = new ImportDialog{libView, url};
-    dialog->show();
+    auto lib = AppData::instance().getLibrary();
+    if (Piece piece{url}; lib->containsPiece(&piece)) {
+        QMessageBox::critical(this, "Duplicate Item",
+                              "Piece already exists in the library!");
+        return;
+    }
 
-    connect(dialog, &QDialog::finished, this, [this] (int) {
-        setCompositionView(Section::Library);
-    });
+    setPieceView(Section::Library);
+
+    auto dialog = new PieceImportDialog{libView, url};
+    dialog->show();
 }

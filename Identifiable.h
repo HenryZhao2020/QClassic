@@ -9,14 +9,16 @@ class Identifiable {
 
     void setId(const QUuid &id);
 
-public:
+protected:
     Identifiable(const QString &name, const QUuid &id = QUuid::createUuid());
+
+public:
     virtual ~Identifiable() = 0;
 
     void setName(const QString &name);
-    QString getName() const;
+    const QString &getName() const;
 
-    QUuid getId() const;
+    const QUuid &getId() const;
 
     friend class AppData;
 };

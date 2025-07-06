@@ -4,12 +4,11 @@
 
 #include <QUrl>
 #include <QString>
-#include <QUuid>
 
 class QMediaPlayer;
 class QAudioOutput;
 
-class Composition : public Identifiable {
+class Piece : public Identifiable {
     QUrl source;
     QString composer;
     int playCount;
@@ -19,9 +18,9 @@ class Composition : public Identifiable {
 public:
     static QString millisecToString(int ms);
 
-    Composition(const QUrl &source, const QString &name = "",
-                const QString &composer = "");
-    ~Composition();
+    Piece(const QUrl &source, const QString &name = "",
+          const QString &composer = "");
+    ~Piece();
 
     QUrl getSource() const;
 
@@ -32,9 +31,9 @@ public:
     int getPlayCount() const;
 
     QMediaPlayer *getMediaPlayer() const;
-
+    void setVolume(int volume);
     int getDurationMs() const;
     QString getDurationString() const;
 
-    bool operator==(const Composition &other);
+    bool operator==(const Piece &other);
 };

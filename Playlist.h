@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ICompositionList.h"
+#include "IPieceList.h"
 
-class Playlist : public ICompositionList {
+class Playlist : public IPieceList {
 public:
     Playlist(const QString &name = "");
 };

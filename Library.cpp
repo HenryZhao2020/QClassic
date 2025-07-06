@@ -1,15 +1,29 @@
 #include "Library.h"
-#include "Composition.h"
+#include "Piece.h"
 
 Library::~Library() {
-    for (Composition *c : getCompositions()) {
-        delete c;
+    for (auto &piece : getPieces()) {
+        delete piece;
     }
 }
 
-bool Library::removeComposition(Composition *composition) {
-    Q_ASSERT(composition);
-    bool returnVal{ICompositionList::removeComposition(composition)};
-    delete composition;
+void Library::addPiece(Piece *piece) {
+    Q_ASSERT(piece);
+    IPieceList::addPiece(piece);
+
+    const QString composer{piece->getComposer()};
+    if (!composers.contains(composer)) {
+        composers.append(composer);
+    }
+}
+
+bool Library::removePiece(Piece *piece) {
+    Q_ASSERT(piece);
+    const bool returnVal{IPieceList::removePiece(piece)};
+    delete piece;
     return returnVal;
+}
+
+const QStringList &Library::getComposers() const {
+    return composers;
 }

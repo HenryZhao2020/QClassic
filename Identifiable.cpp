@@ -9,7 +9,7 @@ void Identifiable::setName(const QString &name) {
     this->name = name;
 }
 
-QString Identifiable::getName() const {
+const QString &Identifiable::getName() const {
     return name;
 }
 
@@ -17,6 +17,6 @@ void Identifiable::setId(const QUuid &id) {
     this->id = id;
 }
 
-QUuid Identifiable::getId() const {
+const QUuid &Identifiable::getId() const {
     return id;
 }

@@ -3,27 +3,24 @@
 #include <QMenuBar>
 
 class MainWindow;
-class PlayerBar;
+class QActionGroup;
 enum class Repeat;
 
 class MenuBar : public QMenuBar {
     Q_OBJECT
 
-    QAction *showSideBarAction;
+    MainWindow *win;
 
-    QAction *playAction;
-    QAction *prevAction;
-    QAction *nextAction;
+    QMenu *repeatMenu;
+    QActionGroup *repeatGroup;
 
-    QAction *repeatOffAction;
-    QAction *repeatAllAction;
-    QAction *repeatOneAction;
+    void makeFileMenu();
+    void makeEditMenu();
+    void makeViewMenu();
+    void makeCtrlMenu();
 
-    void setRepeat(Repeat repeat);
+    void addRepeatMode(const QString &text, Repeat repeat);
 
 public:
     MenuBar(MainWindow *win);
-
-    friend MainWindow;
-    friend PlayerBar;
 };

@@ -4,7 +4,7 @@
 
 class MainWindow;
 
-enum class Section { PlayQueue = 1, Library, Playlist };
+enum class Section { PlayQueue, Library, Playlist };
 
 class SideBar : public TreeView {
     Q_OBJECT

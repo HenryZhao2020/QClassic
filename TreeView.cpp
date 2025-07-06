@@ -29,12 +29,13 @@ QStandardItem *TreeView::addSection(const QString &text) {
 
 QStandardItem *TreeView::addRow(const QString &text, QStandardItem *section) {
     auto row = addRow(QStringList{text}, section);
-    return row[0];
+    return row.front();
 }
 
 QList<QStandardItem *> TreeView::addRow(const QStringList &list,
                                         QStandardItem *section) {
     QList<QStandardItem *> items;
+    items.reserve(list.size());
     for (const auto &text : list) {
         auto item = new QStandardItem{text};
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
@@ -48,16 +49,15 @@ QList<QStandardItem *> TreeView::addRow(const QStringList &list,
         model->appendRow(items);
     }
     resizeColumnToContents(0);  // Necessary for setting row height
-
     return items;
 }
 
 QList<QStandardItem *> TreeView::getRow(int row) const {
-    QList<QStandardItem*> rowItems;
-    int columnCount{model->columnCount()};
+    QList<QStandardItem *> rowItems;
+    const int columnCount{model->columnCount()};
+    rowItems.reserve(columnCount);
     for (int col = 0; col < columnCount; ++col) {
-        QStandardItem *item = model->item(row, col);
-        rowItems.append(item);
+        rowItems.append(model->item(row, col));
     }
     return rowItems;
 }

@@ -1,17 +1,18 @@
 #pragma once
 
 #include <QFrame>
-#include <QPushButton>
-#include <QSlider>
-#include <QLabel>
 
 class MainWindow;
-class Composition;
+class QPushButton;
+class QSlider;
+class QLabel;
+class Piece;
 
 class PlayerBar : public QFrame {
     Q_OBJECT
 
     MainWindow *win;
+
     QPushButton *playButton;
     QPushButton *prevButton;
     QPushButton *nextButton;
@@ -21,19 +22,21 @@ class PlayerBar : public QFrame {
 
     QSlider *volumeSlider;
     QLabel *volumeLabel;
-    int volume;
 
-    Composition *currComposition;
+    Piece *currPiece;
     bool playing;
 
-    void initTimeSlider(Composition *composition);
+    void initTimeSlider(Piece *piece);
     void updateTimeSlider(int ms);
+
+    void updateVolumeSlider(int volume);
 
 public:
     PlayerBar(MainWindow *win);
 
-    void setEnabled(bool enabled);
-    void setCurrentComposition(Composition *composition);
+    void setCurrentPiece(Piece *piece);
+    Piece *getCurrentPiece() const;
+
     void updateDuration();
     void playOrPause();
     void play();

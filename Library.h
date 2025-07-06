@@ -1,10 +1,17 @@
 #pragma once
 
-#include "ICompositionList.h"
+#include "IPieceList.h"
 
-class Library : public ICompositionList {
+#include <QStringList>
+
+class Library : public IPieceList {
+    QStringList composers;
+
 public:
     ~Library();
 
-    bool removeComposition(Composition *compositoon) override;
+    void addPiece(Piece *piece) override;
+    bool removePiece(Piece *piece) override;
+
+    const QStringList &getComposers() const;
 };

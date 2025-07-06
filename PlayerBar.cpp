@@ -1,26 +1,26 @@
 #include "PlayerBar.h"
 #include "MainWindow.h"
-#include "MenuBar.h"
-#include "ICompositionView.h"
-#include "Composition.h"
+#include "IPieceView.h"
+#include "Piece.h"
+#include "AppData.h"
+#include "Playback.h"
 
 #include <QHBoxLayout>
+#include <QPushButton>
+#include <QSlider>
+#include <QLabel>
 #include <QMediaPlayer>
 #include <QAudioOutput>
-
-static constexpr int MAX_VOLUME{100};
 
 PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
     playButton{new QPushButton{"Play", this}},
     prevButton{new QPushButton{"Prev", this}},
     nextButton{new QPushButton{"Next", this}},
     timeSlider{new QSlider{Qt::Horizontal, this}},
-    timeLabel{new QLabel{Composition::millisecToString(0), this}},
+    timeLabel{new QLabel{Piece::millisecToString(0), this}},
     volumeSlider{new QSlider{Qt::Horizontal, this}},
-    volumeLabel{new QLabel{QString::number(MAX_VOLUME) + "%", this}},
-    volume{MAX_VOLUME},
-    currComposition{nullptr},
-    playing{false} {
+    volumeLabel{new QLabel{this}},
+    currPiece{nullptr}, playing{false} {
 
     auto barLayout = new QHBoxLayout{this};
     barLayout->setAlignment(Qt::AlignLeft);
@@ -34,57 +34,55 @@ PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
     barLayout->addWidget(volumeLabel);
 
     connect(timeSlider, &QSlider::sliderReleased, this, [this] {
-        currComposition->getMediaPlayer()->setPosition(timeSlider->value());
+        currPiece->getMediaPlayer()->setPosition(timeSlider->value());
     });
 
-    volumeSlider->setMaximum(MAX_VOLUME);
-    volumeSlider->setValue(MAX_VOLUME);
-    connect(volumeSlider, &QSlider::valueChanged, this, [this] (int vol) {
-        volume = vol;
-        currComposition->getMediaPlayer()->audioOutput()
-            ->setVolume(1.0 * volume / MAX_VOLUME);
-        volumeLabel->setText(QString::number(volume) + "%");
-    });
+    const int volume{AppData::instance().getVolume()};
+    volumeLabel->setText(QString{"%1%"}.arg(volume));
+    volumeSlider->setMinimum(Volume::MinVolume);
+    volumeSlider->setMaximum(Volume::MaxVolume);
+    volumeSlider->setValue(volume);
+    connect(volumeSlider, &QSlider::valueChanged, this,
+            &PlayerBar::updateVolumeSlider);
 
-    connect(playButton, &QPushButton::clicked, this, &PlayerBar::playOrPause);
-    connect(prevButton, &QPushButton::clicked, this,
-            [win] { win->getCompositionView()->selectPrev(); });
-    connect(nextButton, &QPushButton::clicked, this,
-            [win] { win->getCompositionView()->selectNext(); });
+    connect(playButton, &QPushButton::clicked, this,
+            &PlayerBar::playOrPause);
+    connect(prevButton, &QPushButton::clicked, this, [win] {
+        win->getPieceView()->selectPrev();
+    });
+    connect(nextButton, &QPushButton::clicked, this, [win] {
+        win->getPieceView()->selectNext();
+    });
 
     setEnabled(false);
 }
 
-void PlayerBar::setEnabled(bool enabled) {
-    QFrame::setEnabled(enabled);
-    win->getMenuBar()->playAction->setEnabled(enabled);
-    win->getMenuBar()->prevAction->setEnabled(enabled);
-    win->getMenuBar()->nextAction->setEnabled(enabled);
-}
-
-void PlayerBar::setCurrentComposition(Composition *composition) {
-    if (currComposition) {
-        currComposition->getMediaPlayer()->stop();
+void PlayerBar::setCurrentPiece(Piece *piece) {
+    if (currPiece) {
+        currPiece->getMediaPlayer()->stop();
     }
-    currComposition = composition;
+    currPiece = piece;
 
-    setEnabled(composition);
-    win->setWindowTitle(composition ? composition->getName() : "");
-    initTimeSlider(composition);
+    setEnabled(piece);
+    win->setWindowTitle(piece ? piece->getName() : "");
+    initTimeSlider(piece);
 
-    if (!composition) return;
+    if (!piece) return;
 
-    auto player = currComposition->getMediaPlayer();
-    connect(player, &QMediaPlayer::positionChanged, this,
-            &PlayerBar::updateTimeSlider);
-
-    win->getCompositionView()->incrementPlayCount(composition);
+    piece->setVolume(AppData::instance().getVolume());
+    win->getPieceView()->increasePlayCount(piece);
+    connect(currPiece->getMediaPlayer(), &QMediaPlayer::positionChanged,
+            this, &PlayerBar::updateTimeSlider);
     play();
 }
 
+Piece *PlayerBar::getCurrentPiece() const {
+    return currPiece;
+}
+
 void PlayerBar::updateDuration() {
-    if (currComposition) {
-        timeSlider->setMaximum(currComposition->getDurationMs());
+    if (currPiece) {
+        timeSlider->setMaximum(currPiece->getDurationMs());
     }
 }
 
@@ -94,41 +92,43 @@ void PlayerBar::playOrPause() {
 }
 
 void PlayerBar::play() {
-    Q_ASSERT(currComposition);
+    Q_ASSERT(currPiece);
 
-    currComposition->getMediaPlayer()->play();
+    currPiece->getMediaPlayer()->play();
     playButton->setText("Pause");
-    win->getMenuBar()->playAction->setText(tr("Pause"));
     playing = true;
 }
 
 void PlayerBar::pause() {
-    Q_ASSERT(currComposition);
+    Q_ASSERT(currPiece);
 
-    currComposition->getMediaPlayer()->pause();
+    currPiece->getMediaPlayer()->pause();
     playButton->setText("Play");
-    win->getMenuBar()->playAction->setText(tr("Play"));
     playing = false;
 }
 
-void PlayerBar::initTimeSlider(Composition *composition) {
+void PlayerBar::initTimeSlider(Piece *piece) {
     timeSlider->setValue(0);
-    timeLabel->setText(Composition::millisecToString(0));
+    timeLabel->setText(Piece::millisecToString(0));
 
-    if (composition) {
-        timeSlider->setMaximum(composition->getDurationMs());
-        composition->getMediaPlayer()->audioOutput()
-            ->setVolume(1.0 * volume / MAX_VOLUME);
+    if (piece) {
+        timeSlider->setMaximum(piece->getDurationMs());
     }
 }
 
 void PlayerBar::updateTimeSlider(int ms) {
     if (timeSlider->isSliderDown()) return;
 
-    if (ms == currComposition->getDurationMs()) {
-        win->getCompositionView()->selectNext();
+    if (ms == currPiece->getDurationMs()) {
+        win->getPieceView()->selectNext();
     } else {
         timeSlider->setValue(ms);
-        timeLabel->setText(Composition::millisecToString(ms));
+        timeLabel->setText(Piece::millisecToString(ms));
     }
+}
+
+void PlayerBar::updateVolumeSlider(int volume) {
+    AppData::instance().setVolume(volume);
+    currPiece->setVolume(volume);
+    volumeLabel->setText(QString{"%0%"}.arg(volume));
 }
