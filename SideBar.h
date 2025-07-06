@@ -1,28 +1,20 @@
 #pragma once
 
-#include <QTreeView>
-#include <QStandardItem>
+#include "TreeView.h"
 
 class MainWindow;
 
-class SideBar : public QTreeView {
+enum class Section { PlayQueue, Library, Playlist };
+
+class SideBar : public TreeView {
     Q_OBJECT
+
+    MainWindow *win;
+
+    void onSelection(const QModelIndex &current, const QModelIndex &);
 
 public:
     SideBar(MainWindow *win);
 
-private:
-    enum Category {
-        ComposerItem = 0,
-        GenreItem,
-        PlaylistItem,
-    };
-
-    QStandardItem *addItem(const QString &text, Category type);
-    void onItemSelected(const QModelIndex &current, const QModelIndex &);
-
-    QStandardItemModel *model;
-    QStandardItem *composerRoot;
-    QStandardItem *genreRoot;
-    QStandardItem *playlistRoot;
+    void setCurrentSection(Section section);
 };

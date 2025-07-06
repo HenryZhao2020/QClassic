@@ -1,7 +1,3 @@
-PlayerBar QPushButton {
-    border: 0;
-}
-
-MainView {
-    background: palette(base);
+TreeView:item {
+    height: 30px;
 }

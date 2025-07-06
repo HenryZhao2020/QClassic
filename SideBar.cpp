@@ -1,82 +1,41 @@
 #include "SideBar.h"
 #include "MainWindow.h"
 
-#include <QHeaderView>
+SideBar::SideBar(MainWindow *win) : TreeView{win}, win{win} {
+    setFocusPolicy(Qt::NoFocus);
 
-static constexpr int TypeRole{Qt::UserRole + 1};
+    auto queueSection = addRow(tr("Play Queue"));
+    queueSection->setData(QVariant::fromValue(Section::PlayQueue));
 
-SideBar::SideBar(MainWindow *win) : QTreeView{win} {
-    header()->hide();
+    auto libSection = addRow(tr("Library"));
+    libSection->setData(QVariant::fromValue(Section::Library));
 
-    model = new QStandardItemModel{this};
-    setModel(model);
-
-    composerRoot = new QStandardItem{tr("Composer")};
-    composerRoot->setFlags(Qt::NoItemFlags);
-    addItem("Ludwig Van Beethoven", ComposerItem);
-    addItem("JS Bach", ComposerItem);
-    addItem("Mozart", ComposerItem);
-    model->appendRow(composerRoot);
-
-    genreRoot = new QStandardItem{tr("Genre")};
-    genreRoot->setFlags(Qt::NoItemFlags);
-    addItem("String Quartet", GenreItem);
-    addItem("Symphony", GenreItem);
-    addItem("Sonata", GenreItem);
-    model->appendRow(genreRoot);
-
-    playlistRoot = new QStandardItem{tr("Playlist")};
-    playlistRoot->setFlags(Qt::NoItemFlags);
-    addItem("Bach's Lunch", PlaylistItem);
-    model->appendRow(playlistRoot);
+    // auto playlistSection = addSection(tr("Playlist"));
+    // addRow("Bach's Lunch", playlistSection);
 
     connect(selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &SideBar::onItemSelected);
-
-    expandAll();
+            this, &SideBar::onSelection);
 }
 
-QStandardItem *SideBar::addItem(const QString &text, Category type) {
-    auto item = new QStandardItem{text};
-    item->setData(type, TypeRole);
-
-    switch (type) {
-    case ComposerItem:
-        composerRoot->appendRow(item);
-        break;
-    case GenreItem:
-        genreRoot->appendRow(item);
-        break;
-    case PlaylistItem:
-        playlistRoot->appendRow(item);
-        break;
-    }
-
-    return item;
-}
-
-void SideBar::onItemSelected(const QModelIndex &current, const QModelIndex &) {
-    auto item = model->itemFromIndex(current);
+void SideBar::onSelection(const QModelIndex &current, const QModelIndex &) {
+    const auto item = getModel()->itemFromIndex(current);
     if (!item) return;
 
-    Category type = static_cast<Category>(item->data(TypeRole).toInt());
-    QString text = item->text();
+    Section section{item->data().toInt()};
+    win->setPieceView(section);
+}
 
-    switch (type) {
-    case ComposerItem:
-        qDebug() << "Composer selected:" << text;
-        break;
+void SideBar::setCurrentSection(Section section) {
+    const int rowCount{getModel()->rowCount()};
+    for (int i = 0; i < rowCount; ++i) {
+        const auto item = getModel()->item(i);
+        if (!item) continue;
 
-    case GenreItem:
-        qDebug() << "Genre selected:" << text;
-        break;
-
-    case PlaylistItem:
-        qDebug() << "Playlist selected:" << text;
-        break;
-
-    default:
-        qWarning() << "Unknown item selected:" << text;
-        break;
+        if (section == static_cast<Section>(item->data().toInt())) {
+            QModelIndex index{getModel()->indexFromItem(item)};
+            setCurrentIndex(index);
+            scrollTo(index);
+            break;
+        }
     }
 }

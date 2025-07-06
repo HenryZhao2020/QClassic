@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Multimedia)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia)
 
 set(PROJECT_SOURCES
   Main.cpp
@@ -22,10 +22,30 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(QClassic
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        SideBar.h SideBar.cpp
+        Piece.h Piece.cpp
+
+        Library.h Library.cpp
         PlayerBar.h PlayerBar.cpp
+        SideBar.h SideBar.cpp
+
+        MenuBar.h MenuBar.cpp
         QClassic.qrc
-        MainView.h MainView.cpp
+        Playlist.h Playlist.cpp
+        IPieceView.h IPieceView.cpp
+        TreeView.h TreeView.cpp
+
+        Styles.qss
+        AppData.h AppData.cpp
+        Identifiable.h Identifiable.cpp
+        LibraryView.h LibraryView.cpp
+        QueueView.h QueueView.cpp
+
+        IPieceList.h IPieceList.cpp
+        PieceEditor.h PieceEditor.cpp
+        Playback.h Playback.cpp
+
+
+
 
     )
 # Define target properties for Android with Qt 6 as:
@@ -47,6 +67,7 @@ else()
 endif()
 
 target_link_libraries(QClassic PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(QClassic PRIVATE Qt6::Multimedia)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

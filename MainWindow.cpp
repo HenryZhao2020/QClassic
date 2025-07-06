@@ -1,14 +1,31 @@
 #include "MainWindow.h"
+#include "MenuBar.h"
 #include "SideBar.h"
 #include "PlayerBar.h"
-#include "MainView.h"
+#include "IPieceView.h"
+#include "QueueView.h"
+#include "LibraryView.h"
+#include "PieceEditor.h"
+#include "Library.h"
+#include "Playlist.h"
+#include "Piece.h"
+#include "AppData.h"
 
+#include <QVBoxLayout>
+#include <QScreen>
 #include <QSplitter>
+#include <QShortcut>
+#include <QFileDialog>
+#include <QMessageBox>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), sideBar{new SideBar{this}},
-      playerBar{new PlayerBar{this}}, mainView{new MainView{this}} {
-    resize(800, 600);
+MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
+    menuBar{new MenuBar{this}},
+    sideBar{new SideBar{this}},
+    playerBar{new PlayerBar{this}},
+    playQueue{new Playlist},
+    queueView{new QueueView{this, playQueue}},
+    libView{new LibraryView{this, AppData::instance().getLibrary()}},
+    pieceView{nullptr} {
 
     auto splitter = new QSplitter{this};
     auto container = new QWidget{this};
@@ -21,7 +38,83 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
-    mainLayout->addWidget(mainView, 1);
+
+    const bool libEmpty{AppData::instance().getLibrary()->isEmpty()};
+    setPieceView(libEmpty ? Section::PlayQueue : Section::Library);
+
+    resize(900, 650);
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter,
+                                    size(), screen()->availableGeometry()));
+
+    // Use <Cmd+W> to close window in macOS
+    auto closeShortcut = new QShortcut{QKeySequence::Close, this};
+    connect(closeShortcut, &QShortcut::activated, this, &QWidget::close);
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow() {
+    delete playQueue;
+}
+
+MenuBar *MainWindow::getMenuBar() const {
+    return menuBar;
+}
+
+SideBar *MainWindow::getSideBar() const {
+    return sideBar;
+}
+
+PlayerBar *MainWindow::getPlayerBar() const {
+    return playerBar;
+}
+
+IPieceView *MainWindow::getPieceView() const {
+    return pieceView;
+}
+
+void MainWindow::setPieceView(Section section, Playlist *playlist) {
+    if (pieceView) {
+        mainLayout->removeWidget(pieceView);
+        pieceView->hide();
+    }
+
+    if (section == Section::PlayQueue) {
+        pieceView = queueView;
+    } else if (section == Section::Library) {
+        pieceView = libView;
+    } else {
+        pieceView = nullptr;
+    }
+
+    if (pieceView) {
+        mainLayout->addWidget(pieceView, 1);
+        pieceView->show();
+        sideBar->setCurrentSection(section);
+    }
+}
+
+void MainWindow::addToQueue() {
+    const QList<QUrl> urls{QFileDialog::getOpenFileUrls(this)};
+    if (urls.isEmpty()) return;
+
+    setPieceView(Section::PlayQueue);
+    for (const auto &url : urls) {
+        queueView->addPiece(new Piece{url}, (urls.size() == 1));
+    }
+}
+
+void MainWindow::importLibrary() {
+    const QUrl url{QFileDialog::getOpenFileUrl(this)};
+    if (url.isEmpty()) return;
+
+    auto lib = AppData::instance().getLibrary();
+    if (Piece piece{url}; lib->containsPiece(&piece)) {
+        QMessageBox::critical(this, "Duplicate Item",
+                              "Piece already exists in the library!");
+        return;
+    }
+
+    setPieceView(Section::Library);
+
+    auto dialog = new PieceImportDialog{libView, url};
+    dialog->show();
+}
