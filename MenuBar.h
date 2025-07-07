@@ -4,6 +4,7 @@
 
 class MainWindow;
 class QActionGroup;
+
 enum class Repeat;
 
 class MenuBar : public QMenuBar {

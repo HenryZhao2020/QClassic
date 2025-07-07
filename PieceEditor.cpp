@@ -1,15 +1,16 @@
 #include "PieceEditor.h"
+
+#include "AppData.h"
 #include "IPieceView.h"
+#include "Library.h"
 #include "LibraryView.h"
 #include "Piece.h"
-#include "AppData.h"
-#include "Library.h"
 
-#include <QLineEdit>
+#include <QBoxLayout>
 #include <QComboBox>
 #include <QGridLayout>
-#include <QBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QShortcut>
 
@@ -42,15 +43,20 @@ QString PieceEditFrame::getComposer() const {
 
 IPieceDialog::IPieceDialog(IPieceView *pieceView, Piece *piece) :
     pieceView{pieceView}, piece{piece},
-    editFrame{new PieceEditFrame{pieceView, piece}} {
+    editFrame{new PieceEditFrame{pieceView, piece}},
+    doneButton{new QPushButton{this}} {
+
+    connect(doneButton, &QPushButton::clicked, this,
+            &IPieceDialog::done);
 
     auto cancelButton = new QPushButton{tr("Cancel"), this};
     connect(cancelButton, &QPushButton::clicked, this,
-            &PieceImportDialog::close);
+            &IPieceDialog::close);
 
     auto buttonFrame = new QFrame{this};
-    buttonLayout = new QHBoxLayout{buttonFrame};
+    auto buttonLayout = new QHBoxLayout{buttonFrame};
     buttonLayout->setAlignment(Qt::AlignCenter);
+    buttonLayout->addWidget(doneButton);
     buttonLayout->addWidget(cancelButton);
 
     auto dialogLayout = new QVBoxLayout{this};
@@ -64,24 +70,35 @@ IPieceDialog::IPieceDialog(IPieceView *pieceView, Piece *piece) :
     connect(closeShortcut, &QShortcut::activated, this, &QWidget::close);
 }
 
-IPieceDialog::~IPieceDialog() {}
+void IPieceDialog::updatePieceInfo() {
+    piece->setName(editFrame->getName());
+    piece->setComposer(editFrame->getComposer());
+}
 
 PieceImportDialog::PieceImportDialog(IPieceView *pieceView, const QUrl &url) :
     IPieceDialog{pieceView, new Piece{url}} {
 
-    auto importButton = new QPushButton{tr("Import"), this};
-    connect(importButton, &QPushButton::clicked, this,
-            &PieceImportDialog::import);
-    buttonLayout->addWidget(importButton);
+    doneButton->setText(tr("Import"));
 }
 
 PieceImportDialog::~PieceImportDialog() {
     delete piece;
 }
 
-void PieceImportDialog::import() {
-    piece->setName(editFrame->getName());
-    piece->setComposer(editFrame->getComposer());
+void PieceImportDialog::done() {
+    updatePieceInfo();
     pieceView->addPiece(new Piece{*piece}, true);
+    close();
+}
+
+PieceEditDialog::PieceEditDialog(IPieceView *pieceView, Piece *piece) :
+    IPieceDialog{pieceView, piece} {
+
+    doneButton->setText(tr("Save"));
+}
+
+void PieceEditDialog::done() {
+    updatePieceInfo();
+    pieceView->updatePiece(piece);
     close();
 }

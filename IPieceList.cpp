@@ -1,4 +1,5 @@
 #include "IPieceList.h"
+
 #include "Piece.h"
 
 IPieceList::IPieceList(const QString &name) : Identifiable{name} {}

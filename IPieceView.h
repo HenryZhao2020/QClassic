@@ -2,29 +2,29 @@
 
 #include "TreeView.h"
 
-class MainWindow;
 class IPieceList;
+class MainWindow;
 class Piece;
+class PieceMenu;
+
+enum class PieceViewType;
 
 class IPieceView : public TreeView {
     Q_OBJECT
 
     MainWindow *win;
     IPieceList *pieceList;
-    Piece *selectedPiece;
-    Piece *playingPiece;
     int playingRow;
+    Piece *selectedPiece;
+    PieceMenu *contextMenu;
 
 protected:
     enum Column { Title = 0, Composer, Duration, PlayCount };
 
-    IPieceView(MainWindow *win, IPieceList *list);
+    IPieceView(MainWindow *win, IPieceList *list, PieceViewType type);
 
     QList<QStandardItem *> addRow(Piece *piece);
-    void removeRow(int row);
     QList<QStandardItem *> getRow(Piece *piece) const;
-    Piece *getPieceAtRow(int row) const;
-    Piece *getSelectedPiece() const;
 
     void onSingleClick(const QModelIndex &index);
     void onDoubleClick(const QModelIndex &index);
@@ -33,9 +33,16 @@ protected:
 public:
     virtual ~IPieceView() = 0;
 
+    // Override TreeView::setCurrentIndex
     void setCurrentIndex(const QModelIndex &index);
+
     void addPiece(Piece *piece, bool select = false);
-    void increasePlayCount(Piece *piece);
+    void updatePiece(Piece *piece);
+    Piece *getPieceInRow(int row) const;
+    Piece *getSelectedPiece() const;
+
+    void removeRow(int row);
+
     void selectPrev();
     void selectNext();
 };

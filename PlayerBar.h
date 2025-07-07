@@ -3,10 +3,11 @@
 #include <QFrame>
 
 class MainWindow;
+class Piece;
+
+class QLabel;
 class QPushButton;
 class QSlider;
-class QLabel;
-class Piece;
 
 class PlayerBar : public QFrame {
     Q_OBJECT
@@ -28,7 +29,6 @@ class PlayerBar : public QFrame {
 
     void initTimeSlider(Piece *piece);
     void updateTimeSlider(int ms);
-
     void updateVolumeSlider(int volume);
 
 public:

@@ -1,22 +1,24 @@
 #include "MainWindow.h"
-#include "MenuBar.h"
-#include "SideBar.h"
-#include "PlayerBar.h"
-#include "IPieceView.h"
-#include "QueueView.h"
-#include "LibraryView.h"
-#include "PieceEditor.h"
-#include "Library.h"
-#include "Playlist.h"
-#include "Piece.h"
-#include "AppData.h"
 
-#include <QVBoxLayout>
-#include <QScreen>
-#include <QSplitter>
-#include <QShortcut>
+#include "AppData.h"
+#include "IPieceView.h"
+#include "Library.h"
+#include "LibraryView.h"
+#include "MenuBar.h"
+#include "Piece.h"
+#include "PieceEditor.h"
+#include "PieceViewType.h"
+#include "PlayerBar.h"
+#include "Playlist.h"
+#include "QueueView.h"
+#include "SideBar.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QScreen>
+#include <QShortcut>
+#include <QSplitter>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     menuBar{new MenuBar{this}},
@@ -40,7 +42,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent},
     mainLayout->addWidget(playerBar, 0, Qt::AlignTop);
 
     const bool libEmpty{AppData::instance().getLibrary()->isEmpty()};
-    setPieceView(libEmpty ? Section::PlayQueue : Section::Library);
+    setPieceView(libEmpty ? PieceViewType::PlayQueue
+                          : PieceViewType::Library);
 
     resize(900, 650);
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter,
@@ -71,24 +74,22 @@ IPieceView *MainWindow::getPieceView() const {
     return pieceView;
 }
 
-void MainWindow::setPieceView(Section section, Playlist *playlist) {
+void MainWindow::setPieceView(PieceViewType type, Playlist *playlist) {
     if (pieceView) {
         mainLayout->removeWidget(pieceView);
         pieceView->hide();
     }
 
-    if (section == Section::PlayQueue) {
+    if (type == PieceViewType::PlayQueue) {
         pieceView = queueView;
-    } else if (section == Section::Library) {
+    } else if (type == PieceViewType::Library) {
         pieceView = libView;
-    } else {
-        pieceView = nullptr;
     }
 
     if (pieceView) {
         mainLayout->addWidget(pieceView, 1);
         pieceView->show();
-        sideBar->setCurrentSection(section);
+        sideBar->setCurrentSection(type);
     }
 }
 
@@ -96,7 +97,7 @@ void MainWindow::addToQueue() {
     const QList<QUrl> urls{QFileDialog::getOpenFileUrls(this)};
     if (urls.isEmpty()) return;
 
-    setPieceView(Section::PlayQueue);
+    setPieceView(PieceViewType::PlayQueue);
     for (const auto &url : urls) {
         queueView->addPiece(new Piece{url}, (urls.size() == 1));
     }
@@ -113,7 +114,7 @@ void MainWindow::importLibrary() {
         return;
     }
 
-    setPieceView(Section::Library);
+    setPieceView(PieceViewType::Library);
 
     auto dialog = new PieceImportDialog{libView, url};
     dialog->show();

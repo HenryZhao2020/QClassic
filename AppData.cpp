@@ -1,11 +1,12 @@
 #include "AppData.h"
+
 #include "Library.h"
 #include "Piece.h"
 #include "Playback.h"
 
-#include <QFile>
-#include <QDataStream>
 #include <QApplication>
+#include <QDataStream>
+#include <QFile>
 
 AppData::AppData() :
     lib{new Library},
@@ -68,10 +69,10 @@ bool AppData::load() {
         QString name;
         QUrl source;
         QString composer;
-        int playCount;
+        int playCount{0};
         in >> id >> name >> source >> composer >> playCount;
 
-        auto piece = new Piece{source, name, composer};
+        const auto piece = new Piece{source, name, composer};
         piece->setId(id);
         piece->setPlayCount(playCount);
         lib->addPiece(piece);

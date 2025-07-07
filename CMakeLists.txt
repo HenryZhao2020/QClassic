@@ -43,6 +43,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         IPieceList.h IPieceList.cpp
         PieceEditor.h PieceEditor.cpp
         Playback.h Playback.cpp
+        PieceMenu.h PieceMenu.cpp
+        PieceViewType.h PieceViewType.cpp
+
 
 
 
@@ -66,8 +69,15 @@ else()
     endif()
 endif()
 
-target_link_libraries(QClassic PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(QClassic PRIVATE Qt6::Multimedia)
+set_source_files_properties(macosmedia.mm PROPERTIES
+    COMPILE_FLAGS "-fobjc-arc"
+    LANGUAGE OBJCXX
+)
+
+target_link_libraries(QClassic PRIVATE
+  Qt${QT_VERSION_MAJOR}::Widgets
+  Qt${QT_VERSION_MAJOR}::Multimedia
+)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

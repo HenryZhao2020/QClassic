@@ -1,10 +1,9 @@
 #pragma once
 
-#include <QTreeView>
 #include <QStandardItem>
 #include <QStringList>
+#include <QTreeView>
 
-class QStandardItemModel;
 class MainWindow;
 
 class TreeView : public QTreeView {

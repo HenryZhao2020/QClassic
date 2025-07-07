@@ -1,15 +1,16 @@
 #pragma once
 
-#include <QFrame>
 #include <QDialog>
+#include <QFrame>
 #include <QList>
 #include <QUrl>
 
-class Piece;
 class IPieceView;
-class QLineEdit;
+class Piece;
+
 class QComboBox;
-class QHBoxLayout;
+class QLineEdit;
+class QPushButton;
 
 class PieceEditFrame : public QFrame {
     Q_OBJECT
@@ -31,20 +32,29 @@ protected:
     IPieceView *pieceView;
     Piece *piece;
     PieceEditFrame *editFrame;
-    QHBoxLayout *buttonLayout;
+    QPushButton *doneButton;
 
     IPieceDialog(IPieceView *pieceView, Piece *piece);
 
-public:
-    virtual ~IPieceDialog() = 0;
+    void updatePieceInfo();
+    virtual void done() = 0;
 };
 
 class PieceImportDialog : public IPieceDialog {
     Q_OBJECT
 
-    void import();
+    void done() override;
 
 public:
     PieceImportDialog(IPieceView *pieceView, const QUrl &url);
     ~PieceImportDialog() override;
+};
+
+class PieceEditDialog : public IPieceDialog {
+    Q_OBJECT
+
+    void done() override;
+
+public:
+    PieceEditDialog(IPieceView *pieceView, Piece *piece);
 };

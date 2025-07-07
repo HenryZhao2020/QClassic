@@ -1,10 +1,11 @@
-#include "MenuBar.h"
 #include "MainWindow.h"
-#include "SideBar.h"
+
+#include "AppData.h"
 #include "IPieceView.h"
+#include "MenuBar.h"
 #include "PlayerBar.h"
 #include "Playback.h"
-#include "AppData.h"
+#include "SideBar.h"
 
 #include <QActionGroup>
 
@@ -40,14 +41,14 @@ void MenuBar::makeEditMenu() {}
 void MenuBar::makeViewMenu() {
     auto sideBarAction = new QAction{tr("Show Side Bar"), this};
     sideBarAction->setCheckable(true);
-    connect(sideBarAction, &QAction::triggered, this, [this] (bool state) {
+    connect(sideBarAction, &QAction::triggered, this, [this](bool state) {
         win->getSideBar()->setVisible(state);
     });
 
     auto viewMenu = addMenu(tr("View"));
     viewMenu->addAction(sideBarAction);
 
-    connect(viewMenu, &QMenu::aboutToShow, this, [=] {
+    connect(viewMenu, &QMenu::aboutToShow, this, [=]() {
         sideBarAction->setChecked(win->getSideBar()->isVisible());
     });
 }
@@ -55,19 +56,19 @@ void MenuBar::makeViewMenu() {
 void MenuBar::makeCtrlMenu() {
     auto playAction = new QAction{tr("Play"), this};
     playAction->setShortcut(Qt::Key_Space);
-    connect(playAction, &QAction::triggered, this, [this] {
+    connect(playAction, &QAction::triggered, this, [this]() {
         win->getPlayerBar()->playOrPause();
     });
 
     auto prevAction = new QAction{tr("Previous"), this};
     prevAction->setShortcut(Qt::Key_MediaPrevious);
-    connect(prevAction, &QAction::triggered, this, [this] {
+    connect(prevAction, &QAction::triggered, this, [this]() {
         win->getPieceView()->selectPrev();
     });
 
     auto nextAction = new QAction{tr("Next"), this};
     nextAction->setShortcut(Qt::Key_MediaNext);
-    connect(nextAction, &QAction::triggered, this, [this] {
+    connect(nextAction, &QAction::triggered, this, [this]() {
         win->getPieceView()->selectNext();
     });
 
@@ -85,7 +86,7 @@ void MenuBar::makeCtrlMenu() {
     ctrlMenu->addSeparator();
     ctrlMenu->addMenu(repeatMenu);
 
-    connect(ctrlMenu, &QMenu::aboutToShow, this, [=] {
+    connect(ctrlMenu, &QMenu::aboutToShow, this, [=]() {
         const bool enabled = win->getPlayerBar()->getCurrentPiece();
         playAction->setEnabled(enabled);
         prevAction->setEnabled(enabled);
@@ -97,7 +98,7 @@ void MenuBar::addRepeatMode(const QString &text, Repeat repeat) {
     auto repeatAction = new QAction{text, repeatGroup};
     repeatAction->setCheckable(true);
     repeatAction->setChecked(AppData::instance().getRepeat() == repeat);
-    connect(repeatAction, &QAction::triggered, this, [=] {
+    connect(repeatAction, &QAction::triggered, this, [repeat] {
         AppData::instance().setRepeat(repeat);
     });
     repeatMenu->addAction(repeatAction);

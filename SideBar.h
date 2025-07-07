@@ -4,7 +4,7 @@
 
 class MainWindow;
 
-enum class Section { PlayQueue, Library, Playlist };
+enum class PieceViewType;
 
 class SideBar : public TreeView {
     Q_OBJECT
@@ -16,5 +16,5 @@ class SideBar : public TreeView {
 public:
     SideBar(MainWindow *win);
 
-    void setCurrentSection(Section section);
+    void setCurrentSection(PieceViewType type);
 };

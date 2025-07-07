@@ -2,15 +2,17 @@
 
 #include <QMainWindow>
 
-class QVBoxLayout;
-class MenuBar;
-class SideBar;
-class PlayerBar;
 class IPieceView;
-class QueueView;
 class LibraryView;
+class MenuBar;
+class PlayerBar;
 class Playlist;
-enum class Section;
+class QueueView;
+class SideBar;
+
+class QVBoxLayout;
+
+enum class PieceViewType;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -34,7 +36,7 @@ public:
     PlayerBar *getPlayerBar() const;
     IPieceView *getPieceView() const;
 
-    void setPieceView(Section section, Playlist *playlist = nullptr);
+    void setPieceView(PieceViewType type, Playlist *playlist = nullptr);
     void addToQueue();
     void importLibrary();
 };

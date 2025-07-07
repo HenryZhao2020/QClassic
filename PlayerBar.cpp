@@ -1,23 +1,24 @@
 #include "PlayerBar.h"
-#include "MainWindow.h"
-#include "IPieceView.h"
-#include "Piece.h"
+
 #include "AppData.h"
+#include "IPieceView.h"
+#include "MainWindow.h"
+#include "Piece.h"
 #include "Playback.h"
 
+#include <QAudioOutput>
 #include <QHBoxLayout>
-#include <QPushButton>
-#include <QSlider>
 #include <QLabel>
 #include <QMediaPlayer>
-#include <QAudioOutput>
+#include <QPushButton>
+#include <QSlider>
 
 PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
     playButton{new QPushButton{"Play", this}},
     prevButton{new QPushButton{"Prev", this}},
     nextButton{new QPushButton{"Next", this}},
     timeSlider{new QSlider{Qt::Horizontal, this}},
-    timeLabel{new QLabel{Piece::millisecToString(0), this}},
+    timeLabel{new QLabel{this}},
     volumeSlider{new QSlider{Qt::Horizontal, this}},
     volumeLabel{new QLabel{this}},
     currPiece{nullptr}, playing{false} {
@@ -33,7 +34,7 @@ PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
     barLayout->addWidget(volumeSlider);
     barLayout->addWidget(volumeLabel);
 
-    connect(timeSlider, &QSlider::sliderReleased, this, [this] {
+    connect(timeSlider, &QSlider::sliderReleased, this, [this]() {
         currPiece->getMediaPlayer()->setPosition(timeSlider->value());
     });
 
@@ -47,14 +48,14 @@ PlayerBar::PlayerBar(MainWindow *win) : QFrame{win}, win{win},
 
     connect(playButton, &QPushButton::clicked, this,
             &PlayerBar::playOrPause);
-    connect(prevButton, &QPushButton::clicked, this, [win] {
+    connect(prevButton, &QPushButton::clicked, this, [win]() {
         win->getPieceView()->selectPrev();
     });
-    connect(nextButton, &QPushButton::clicked, this, [win] {
+    connect(nextButton, &QPushButton::clicked, this, [win]() {
         win->getPieceView()->selectNext();
     });
 
-    setEnabled(false);
+    setCurrentPiece(nullptr);
 }
 
 void PlayerBar::setCurrentPiece(Piece *piece) {
@@ -70,7 +71,8 @@ void PlayerBar::setCurrentPiece(Piece *piece) {
     if (!piece) return;
 
     piece->setVolume(AppData::instance().getVolume());
-    win->getPieceView()->increasePlayCount(piece);
+    piece->setPlayCount(piece->getPlayCount() + 1);
+    win->getPieceView()->updatePiece(piece);
     connect(currPiece->getMediaPlayer(), &QMediaPlayer::positionChanged,
             this, &PlayerBar::updateTimeSlider);
     play();
@@ -87,8 +89,11 @@ void PlayerBar::updateDuration() {
 }
 
 void PlayerBar::playOrPause() {
-    if (playing) pause();
-    else play();
+    if (playing) {
+        pause();
+    } else {
+        play();
+    }
 }
 
 void PlayerBar::play() {
@@ -119,7 +124,7 @@ void PlayerBar::initTimeSlider(Piece *piece) {
 void PlayerBar::updateTimeSlider(int ms) {
     if (timeSlider->isSliderDown()) return;
 
-    if (ms == currPiece->getDurationMs()) {
+    if (ms >= currPiece->getDurationMs()) {
         win->getPieceView()->selectNext();
     } else {
         timeSlider->setValue(ms);

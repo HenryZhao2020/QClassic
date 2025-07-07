@@ -2,18 +2,16 @@
 
 #include "Identifiable.h"
 
-#include <QUrl>
 #include <QString>
+#include <QUrl>
 
 class QMediaPlayer;
-class QAudioOutput;
 
 class Piece : public Identifiable {
     QUrl source;
     QString composer;
     int playCount;
     QMediaPlayer *player;
-    QAudioOutput *audioOutput;
 
 public:
     static QString millisecToString(int ms);

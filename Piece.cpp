@@ -1,8 +1,9 @@
 #include "Piece.h"
+
 #include "Playback.h"
 
-#include <QMediaPlayer>
 #include <QAudioOutput>
+#include <QMediaPlayer>
 #include <QTime>
 
 QString Piece::millisecToString(int ms) {
@@ -12,15 +13,13 @@ QString Piece::millisecToString(int ms) {
 Piece::Piece(const QUrl &source, const QString &name,
              const QString &composer) :
     Identifiable{name.isEmpty() ? source.fileName() : name},
-    source{source}, composer{composer},
-    player{new QMediaPlayer}, audioOutput{new QAudioOutput} {
+    source{source}, composer{composer}, player{new QMediaPlayer} {
 
     player->setSource(source);
-    player->setAudioOutput(audioOutput);
+    player->setAudioOutput(new QAudioOutput{player});
 }
 
 Piece::~Piece() {
-    delete audioOutput;
     delete player;
 }
 
@@ -49,7 +48,7 @@ QMediaPlayer *Piece::getMediaPlayer() const {
 }
 
 void Piece::setVolume(int volume) {
-    audioOutput->setVolume(Volume::volumeAsDecimal(volume));
+    player->audioOutput()->setVolume(Volume::volumeAsDecimal(volume));
 }
 
 int Piece::getDurationMs() const {

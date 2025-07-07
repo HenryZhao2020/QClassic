@@ -1,14 +1,18 @@
 #include "SideBar.h"
+
 #include "MainWindow.h"
+#include "PieceViewType.h"
 
 SideBar::SideBar(MainWindow *win) : TreeView{win}, win{win} {
     setFocusPolicy(Qt::NoFocus);
 
     auto queueSection = addRow(tr("Play Queue"));
-    queueSection->setData(QVariant::fromValue(Section::PlayQueue));
+    queueSection->setData(QVariant::fromValue(PieceViewType::PlayQueue),
+                          Qt::UserRole);
 
     auto libSection = addRow(tr("Library"));
-    libSection->setData(QVariant::fromValue(Section::Library));
+    libSection->setData(QVariant::fromValue(PieceViewType::Library),
+                        Qt::UserRole);
 
     // auto playlistSection = addSection(tr("Playlist"));
     // addRow("Bach's Lunch", playlistSection);
@@ -19,20 +23,19 @@ SideBar::SideBar(MainWindow *win) : TreeView{win}, win{win} {
 
 void SideBar::onSelection(const QModelIndex &current, const QModelIndex &) {
     const auto item = getModel()->itemFromIndex(current);
-    if (!item) return;
-
-    Section section{item->data().toInt()};
-    win->setPieceView(section);
+    if (item) {
+        win->setPieceView(PieceViewType{item->data(Qt::UserRole).toInt()});
+    }
 }
 
-void SideBar::setCurrentSection(Section section) {
+void SideBar::setCurrentSection(PieceViewType type) {
     const int rowCount{getModel()->rowCount()};
     for (int i = 0; i < rowCount; ++i) {
         const auto item = getModel()->item(i);
         if (!item) continue;
 
-        if (section == static_cast<Section>(item->data().toInt())) {
-            QModelIndex index{getModel()->indexFromItem(item)};
+        if (type == PieceViewType{item->data(Qt::UserRole).toInt()}) {
+            const QModelIndex index{getModel()->indexFromItem(item)};
             setCurrentIndex(index);
             scrollTo(index);
             break;

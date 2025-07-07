@@ -1,7 +1,7 @@
 #include "TreeView.h"
+
 #include "MainWindow.h"
 
-#include <QStandardItemModel>
 #include <QHeaderView>
 
 TreeView::TreeView(MainWindow *win, const QStringList &headers)
@@ -28,7 +28,7 @@ QStandardItem *TreeView::addSection(const QString &text) {
 }
 
 QStandardItem *TreeView::addRow(const QString &text, QStandardItem *section) {
-    auto row = addRow(QStringList{text}, section);
+    const auto row = addRow(QStringList{text}, section);
     return row.front();
 }
 

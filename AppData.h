@@ -3,7 +3,7 @@
 #include <QString>
 
 class Library;
-class Piece;
+
 enum class Repeat;
 
 class AppData {
